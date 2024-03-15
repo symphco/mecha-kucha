@@ -1,5 +1,5 @@
 import {useRouter} from 'next/router';
-import {ChangeEventHandler, FormEventHandler, useState} from 'react';
+import {ChangeEventHandler, FormEventHandler, useEffect, useState} from 'react';
 import {AppState, MAXIMUM_IMAGES, Slide, SLIDE_LAYOUTS} from '@/common';
 
 export const useInputForm = () => {
@@ -164,6 +164,19 @@ export const useInputForm = () => {
       ))
     }));
   };
+
+  useEffect(() => {
+    if (
+      (typeof appState.title === 'undefined' || typeof appState.input === 'undefined')
+      && typeof router.query.input !== 'string'
+    ) {
+      router.replace({
+        query: {
+          input: 'true'
+        }
+      })
+    }
+  }, []);
 
   return {
     handleInputFormReset,

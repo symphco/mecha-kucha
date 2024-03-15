@@ -21,7 +21,7 @@ const IndexPage: NextPage = () => {
   } = useInputForm();
 
   const currentSlide = appState.slides?.find((s) => s.id === router.query.slide);
-  const showInputFormModal = typeof appState.title === 'undefined' || typeof appState.input === 'undefined' || typeof router.query.input === 'string';
+  const showInputFormModal = typeof router.query.input === 'string';
 
   return (
     <main>
