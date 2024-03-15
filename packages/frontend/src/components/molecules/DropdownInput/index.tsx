@@ -43,4 +43,4 @@ export const DropdownInput: React.FC<DropdownInputProps> = ({
   );
 };
 
-DropdownInput.displayName = 'TextInput';
+DropdownInput.displayName = 'DropdownInput';

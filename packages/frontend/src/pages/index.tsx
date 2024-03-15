@@ -1,247 +1,27 @@
 import { NextPage } from 'next';
-import {ChangeEventHandler, FC, FormEventHandler, Fragment, useState} from 'react';
+import {ChangeEventHandler, FormEventHandler, Fragment, useState} from 'react';
 import {ActionButton} from '@/components/molecules/ActionButton';
 import Link from 'next/link';
 import {useRouter} from 'next/router';
 import {AppState, MAXIMUM_IMAGES, Slide, SLIDE_LAYOUTS} from '@/common';
 import {InputForm} from '@/components/organisms/InputForm';
 import {SlideDataForm} from '@/components/organisms/SlideDataForm';
-
-interface SlideDisplayProps {
-  slide: Slide;
-}
-
-const SlideDisplay: FC<SlideDisplayProps> = ({
-  slide
-}) => {
-  return (
-    <>
-      {slide.layout === 'vertical-bars' && Array.isArray(slide.imageUrls) && (
-        <div className="flex h-full w-full">
-          {slide.imageUrls.slice(0, slide.visibleImages).map((url, i) => (
-            <div
-              key={i}
-              className="h-full w-0 flex-auto"
-            >
-              <img
-                className="w-full h-full object-center object-cover"
-                src={url}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-      {slide.layout === 'horizontal-bars' && Array.isArray(slide.imageUrls) && (
-        <div className="flex-col flex h-full w-full">
-          {slide.imageUrls.slice(0, slide.visibleImages).map((url, i) => (
-            <div
-              key={i}
-              className="h-0 w-full flex-auto"
-            >
-              <img
-                className="w-full h-full object-center object-cover"
-                src={url}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-      {slide.layout === 'grid-left' && Array.isArray(slide.imageUrls) && (
-        <div className="relative w-full h-full">
-          <div className="grid grid-cols-2 absolute top-0 left-0 w-full h-full auto-rows-fr">
-            {slide.imageUrls.slice(0, slide.visibleImages).map((url, i) => (
-              <div
-                key={i}
-                className="only:col-span-2 [&:nth-child(4):not(:last-child)]:col-start-1 [&:nth-child(4):not(:last-child)]:row-start-4 [&:nth-child(4):not(:last-child)]:row-span-3 [&:nth-child(5)]:last:row-span-3 odd:last:row-span-4 row-span-2 odd:last:order-1 order-2 h-full"
-              >
-                <img
-                  className="w-full h-full object-center object-cover"
-                  src={url}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {slide.layout === 'grid-right' && Array.isArray(slide.imageUrls) && (
-        <div className="relative w-full h-full">
-          <div className="grid grid-cols-2 absolute top-0 left-0 w-full h-full auto-rows-fr">
-            {slide.imageUrls.slice(0, slide.visibleImages).map((url, i) => (
-              <div
-                key={i}
-                className="only:col-span-2 [&:nth-child(4):not(:last-child)]:col-start-2 [&:nth-child(4):not(:last-child)]:row-start-4 [&:nth-child(4):not(:last-child)]:row-span-3 [&:nth-child(5)]:last:col-start-2 [&:nth-child(5)]:last:row-start-1 [&:nth-child(5)]:last:row-span-3 odd:last:row-span-4 row-span-2 [&:not(:first-child)]odd:last:col-start-2 odd:last:row-start-1 odd:last:order-2 order-1 h-full"
-              >
-                <img
-                  className="w-full h-full object-center object-cover"
-                  src={url}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </>
-  );
-};
+import {SlideDisplay} from '@/components/molecules/SlideDisplay';
+import {useInputForm} from '@/hooks/useInputForm';
 
 const IndexPage: NextPage = () => {
   const router = useRouter();
-  const [inputFormWorking, setInputFormWorking] = useState(false);
-  const [formKey, setFormKey] = useState<number>();
-  const [appState, setAppState] = useState<AppState>({
-    title: undefined,
-    input: undefined,
-    slides: undefined,
-  });
+  const {
+    inputFormWorking,
+    handleInputFormReset,
+    handleInputFormSubmit,
+    handleUpdateCurrentSlide,
+    appState,
+    formKey,
+  } = useInputForm();
 
   const currentSlide = appState.slides?.find((s) => s.id === router.query.slide);
   const showInputFormModal = typeof appState.title === 'undefined' || typeof appState.input === 'undefined' || typeof router.query.input === 'string';
-
-  const handleInputFormReset: FormEventHandler<HTMLElementTagNameMap['form']> = async (e) => {
-    e.preventDefault();
-    const { input: _, ...etcQuery } = router.query;
-    await router.replace({
-      query: etcQuery
-    });
-  };
-
-  const handleInputFormSubmit: FormEventHandler<HTMLElementTagNameMap['form']> = async (e) => {
-    e.preventDefault();
-    setInputFormWorking(true);
-    const valuesRaw = new FormData(e.currentTarget);
-    const title = valuesRaw.get('title') as string ?? '';
-    const { submitter } = e.nativeEvent as unknown as { submitter: HTMLButtonElement };
-    if (submitter.name === 'submit' && submitter.value === 'inspire-me') {
-      const url = new URL(process.env.NEXT_PUBLIC_AIROPS_API_ENDPOINT as string, 'https://api.airops.com');
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIROPS_API_KEY as string}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: title,
-        }),
-      });
-      const responseBody = await response.json();
-      setFormKey(Date.now());
-      setAppState((oldAppState) => ({
-        ...oldAppState,
-        title,
-        input: responseBody.result.response,
-      }));
-      setInputFormWorking(false);
-      return;
-    }
-
-    const input = valuesRaw.get('input') as string ?? '';
-    const values = {
-      title,
-      input,
-    };
-    const lines = input.split('\n').filter((s) => s.trim().length > 0);
-    const resultSlides = await lines.reduce(
-      async (previousValuePromise, line) => {
-        const previousSlides = await previousValuePromise;
-        if (line.startsWith('Part ')) {
-          const [, partTitle] = line.split(':');
-          const title = partTitle.trim();
-
-          return [
-            ...previousSlides,
-            {
-              id: window.crypto.randomUUID(),
-              imageUrls: [],
-              layout: SLIDE_LAYOUTS[Math.floor(Math.random() * SLIDE_LAYOUTS.length)],
-              text: '',
-              visibleImages: Math.floor(Math.random() * (MAXIMUM_IMAGES + 1)),
-              title,
-              theme: '',
-            } as Slide
-          ];
-        }
-
-        if (line.startsWith('Theme:')) {
-          const url = new URL('/search/photos', 'https://api.unsplash.com');
-          const [, query] = line.split(':');
-          const theme = query.trim();
-          url.search = new URLSearchParams({
-            page: '1',
-            query: theme,
-            client_id: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY as string,
-          }).toString();
-          const response = await fetch(url);
-          const json = await response.json();
-          const lastSlide = previousSlides.at(-1);
-          if (typeof lastSlide === 'undefined') {
-            return previousSlides;
-          }
-          return [
-            ...previousSlides.slice(0, -1),
-            {
-              ...lastSlide,
-              imageUrls: json.results.slice(0, MAXIMUM_IMAGES).map((s: any) => {
-                return s.urls.regular;
-              }),
-              theme,
-            }
-          ]
-        }
-
-        const lastSlide = previousSlides.at(-1);
-        if (typeof lastSlide === 'undefined') {
-          return previousSlides;
-        }
-        return [
-          ...previousSlides.slice(0, -1),
-          {
-            ...lastSlide,
-            text: `${lastSlide.text}\n\n${line.trim()}`.trim()
-          }
-        ];
-      },
-      Promise.resolve<Slide[]>([])
-    );
-
-    setAppState((oldAppState) => ({
-      ...oldAppState,
-      ...values,
-      slides: resultSlides,
-    }));
-
-    const { input: _, ...etcQuery } = router.query;
-    await router.replace({
-      query: {
-        ...etcQuery,
-        slide: resultSlides[0].id,
-      }
-    });
-    setInputFormWorking(false);
-  };
-
-  const handleUpdateCurrentSlide: ChangeEventHandler<
-    HTMLElementTagNameMap['input']
-    | HTMLElementTagNameMap['select']
-    | HTMLElementTagNameMap['textarea']
-  > = (e) => {
-    if (typeof currentSlide === 'undefined') {
-      return;
-    }
-    const name = e.currentTarget.name;
-    const value = e.currentTarget.value;
-    setAppState((oldAppState) => ({
-      ...oldAppState,
-      slides: oldAppState.slides?.map((s) => (
-        s.id === currentSlide.id
-          ? {
-            ...s,
-            [name]: value
-          }
-          : s
-      ))
-    }));
-  };
 
   return (
     <main>
