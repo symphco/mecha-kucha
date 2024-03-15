@@ -1,0 +1,4 @@
+- [ ] Ability to change images on each slide
+- [ ] Randomness on selecting images
+- [ ] Streaming in "Inspire Me!" action
+- [ ] Connecting to Google for saving to Google Docs
