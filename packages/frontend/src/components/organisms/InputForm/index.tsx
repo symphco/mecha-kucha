@@ -35,8 +35,8 @@ export const InputForm: FC<InputFormProps> = ({
           <div>
             <MultilineTextInput
               label="Input"
-              name="input"
               rows={3}
+              name="input"
               defaultValue={defaultValues?.input}
             />
           </div>

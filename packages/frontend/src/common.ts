@@ -6,12 +6,12 @@ export type SlideLayout = typeof SLIDE_LAYOUTS[number];
 
 export interface Slide {
   id: string;
-  imageUrls: ImageUrlCollection;
-  layout: SlideLayout;
-  text: string;
-  visibleImages: number;
-  theme: string;
   title: string;
+  theme: string;
+  layout: SlideLayout;
+  visibleImages: number;
+  text: string;
+  imageUrls: ImageUrlCollection;
 }
 
 export interface AppState {
@@ -20,4 +20,4 @@ export interface AppState {
   slides?: Slide[];
 }
 
-export const MAXIMUM_IMAGES = 5;
+export const MAXIMUM_IMAGES = 5 as const;

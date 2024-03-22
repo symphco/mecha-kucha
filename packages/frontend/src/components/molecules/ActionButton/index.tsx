@@ -22,7 +22,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
     <ActionButtonDerivedElementComponent
       {...etcProps}
       className={
-        `h-12 rounded overflow-hidden px-8 font-bold disabled:opacity-50 ${
+        `h-12 rounded overflow-hidden px-6 font-bold disabled:opacity-50 ${
           variant === 'primary'
           && 'border-2 border-white bg-white text-black'
         } ${
