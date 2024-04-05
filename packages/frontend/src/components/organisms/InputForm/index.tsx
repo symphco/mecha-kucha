@@ -3,6 +3,7 @@ import {AppState} from '@/common';
 import {TextInput} from '@/components/molecules/TextInput';
 import {MultilineTextInput} from '@/components/molecules/MultilineTextInput';
 import {ActionButton} from '@/components/molecules/ActionButton';
+import {DropdownInput} from '@/components/molecules/DropdownInput';
 
 interface InputFormProps extends HTMLProps<HTMLElementTagNameMap['form']> {
   defaultValues: AppState;
@@ -39,6 +40,20 @@ export const InputForm: FC<InputFormProps> = ({
               name="input"
               defaultValue={defaultValues?.input}
             />
+          </div>
+          <div>
+            <DropdownInput
+              label="Image Generator"
+              name="imageGenerator"
+              defaultValue={defaultValues?.imageGenerator}
+            >
+              <option value="">
+                Picsum
+              </option>
+              <option value="unsplash">
+                Unsplash
+              </option>
+            </DropdownInput>
           </div>
           <div className="flex justify-between items-center gap-8">
             <div>

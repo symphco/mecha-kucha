@@ -18,6 +18,7 @@ export interface SlideDataFormProps extends HTMLProps<HTMLElementTagNameMap['for
 export const SlideDataForm: FC<SlideDataFormProps> = ({
   defaultValues: currentSlide,
   onFieldChange,
+  disabled,
   ...etcProps
 }) => {
   return (
@@ -25,7 +26,7 @@ export const SlideDataForm: FC<SlideDataFormProps> = ({
       {...etcProps}
       aria-label="Slide Data Form"
     >
-      <fieldset className="contents">
+      <fieldset className="contents" disabled={disabled}>
         <legend className="sr-only">Slide Data</legend>
         <input
           type="hidden"
@@ -71,8 +72,8 @@ export const SlideDataForm: FC<SlideDataFormProps> = ({
             <div className="flex-auto">
               <NumberInput
                 label="Images"
-                name="visibleImages"
-                defaultValue={currentSlide?.visibleImages}
+                name="visibleSlots"
+                defaultValue={currentSlide?.visibleSlots}
                 onChange={onFieldChange as ChangeEventHandler<HTMLElementTagNameMap['input']>}
                 min={0}
                 max={MAXIMUM_IMAGES}

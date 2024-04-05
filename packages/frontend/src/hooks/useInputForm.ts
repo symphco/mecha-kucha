@@ -3,16 +3,19 @@ import {
   ChangeEventHandler,
   DragEventHandler,
   FormEventHandler,
-  MouseEventHandler,
   ReactEventHandler,
   useEffect,
   useState,
 } from 'react';
-import {AppState, ImageUrlCollection, MAXIMUM_IMAGES, Slide, SLIDE_LAYOUTS} from '@/common';
-import slides from '@/pages/api/slides';
+import {AppState, SlotCollection, MAXIMUM_IMAGES, Slide, SLIDE_LAYOUTS, ImageSlotContent, SlotContent} from '@/common';
 
-export const useInputForm = () => {
+interface UseInputFormParams {
+  refresh?: (...args: unknown[]) => unknown;
+}
+
+export const useInputForm = (params = {} as UseInputFormParams) => {
   const router = useRouter();
+  const [working, setWorking] = useState<string>();
   const [formKey, setFormKey] = useState<number>();
   const [slideImageLoading, setSlideImageLoading] = useState([] as number[]);
   const [appState, setAppState] = useState<AppState>(
@@ -31,7 +34,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "grid-left",
     //       "text": "Description: Just like seeds waiting to sprout, starting a Next.js project is the beginning of growth. Setting up the project structure, dependencies, and configurations is akin to planting the seed of a robust application.",
-    //       "visibleImages": 5,
+    //       "visibleSlots": 5,
     //       "title": "Seeds",
     //       "theme": "Germination"
     //     },
@@ -46,7 +49,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "grid-left",
     //       "text": "Description: Planning the layout and components of a Next.js project is similar to creating architectural blueprints for a building. Designing the overall structure and flow of the application sets the foundation for a successful development process.",
-    //       "visibleImages": 2,
+    //       "visibleSlots": 2,
     //       "title": "Blueprints",
     //       "theme": "Architectural Plans"
     //     },
@@ -61,7 +64,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "grid-right",
     //       "text": "Description: Utilizing tools like the Next.js CLI, extensions, and libraries is like having a well-equipped toolbox for a project. These tools streamline development tasks, enhance performance, and provide solutions to common challenges.",
-    //       "visibleImages": 4,
+    //       "visibleSlots": 4,
     //       "title": "Tools",
     //       "theme": "Toolbox"
     //     },
@@ -76,7 +79,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "grid-left",
     //       "text": "Description: Defining routes in a Next.js project is like mapping out pathways in a city. Routing helps navigate users through different pages and sections of the application, ensuring a seamless browsing experience.",
-    //       "visibleImages": 2,
+    //       "visibleSlots": 2,
     //       "title": "Routes",
     //       "theme": "Pathways"
     //     },
@@ -91,7 +94,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "grid-right",
     //       "text": "Description: Components in Next.js act as the building blocks of the application, similar to how bricks come together to construct a building. Reusable, modular components enhance code reusability, maintainability, and scalability.",
-    //       "visibleImages": 5,
+    //       "visibleSlots": 5,
     //       "title": "Components",
     //       "theme": "Building Blocks"
     //     },
@@ -106,7 +109,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "horizontal-bars",
     //       "text": "Description: Styling a Next.js project is like dressing it up with a unique wardrobe. Using CSS frameworks, preprocessors, or styled-components adds visual appeal and enhances the user interface design.",
-    //       "visibleImages": 5,
+    //       "visibleSlots": 5,
     //       "title": "Styling",
     //       "theme": "Wardrobe"
     //     },
@@ -121,7 +124,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "grid-left",
     //       "text": "Description: State management in Next.js serves as the central nervous system of the application, coordinating data flow and interactions between components. Implementing tools like Redux or Context API helps maintain a consistent state across the application.",
-    //       "visibleImages": 3,
+    //       "visibleSlots": 3,
     //       "title": "State Management",
     //       "theme": "Central Nervous System"
     //     },
@@ -136,7 +139,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "horizontal-bars",
     //       "text": "Description: Integrating APIs into a Next.js project is like fitting connectors to establish communication with external services. Fetching data from APIs enables dynamic content, real-time updates, and interactive features in the application.",
-    //       "visibleImages": 2,
+    //       "visibleSlots": 2,
     //       "title": "APIs",
     //       "theme": "Connectors"
     //     },
@@ -151,7 +154,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "horizontal-bars",
     //       "text": "Description: Optimizing a Next.js project involves fine-tuning performance, enhancing user experience, and improving loading times. Techniques like code splitting, lazy loading, and image optimization help streamline the application.",
-    //       "visibleImages": 2,
+    //       "visibleSlots": 2,
     //       "title": "Optimization",
     //       "theme": "Fine-Tuning"
     //     },
@@ -166,7 +169,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "grid-left",
     //       "text": "Description: Testing a Next.js project ensures quality control and identifies potential bugs or issues before deployment. Conducting unit tests, integration tests, and end-to-end tests helps maintain the reliability and functionality of the application.",
-    //       "visibleImages": 1,
+    //       "visibleSlots": 1,
     //       "title": "Testing",
     //       "theme": "Quality Control"
     //     },
@@ -181,7 +184,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "grid-right",
     //       "text": "Description: Deploying a Next.js project is like preparing for launch from a launch pad. Configuring servers, setting up environments, and deploying the application to production ensure it is accessible to users worldwide.",
-    //       "visibleImages": 3,
+    //       "visibleSlots": 3,
     //       "title": "Deployment",
     //       "theme": "Launch Pad"
     //     },
@@ -196,7 +199,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "grid-left",
     //       "text": "Description: Monitoring a Next.js project involves keeping a watchful eye on performance metrics, error logs, and user interactions. Monitoring tools help identify issues, track trends, and optimize the application for better performance.",
-    //       "visibleImages": 1,
+    //       "visibleSlots": 1,
     //       "title": "Monitoring",
     //       "theme": "Surveillance"
     //     },
@@ -211,7 +214,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "vertical-bars",
     //       "text": "Description: Updating a Next.js project is like facilitating its evolution over time. Implementing new features, fixing bugs, and adapting to changing requirements ensures the application remains relevant and competitive in the market.",
-    //       "visibleImages": 2,
+    //       "visibleSlots": 2,
     //       "title": "Updates",
     //       "theme": "Evolution"
     //     },
@@ -226,7 +229,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "grid-left",
     //       "text": "Description: Documenting a Next.js project is like creating a guidebook for developers to understand the codebase, architecture, and functionalities. Comprehensive documentation enhances collaboration, onboarding, and maintenance of the application.",
-    //       "visibleImages": 1,
+    //       "visibleSlots": 1,
     //       "title": "Documentation",
     //       "theme": "Guidebook"
     //     },
@@ -241,7 +244,7 @@ export const useInputForm = () => {
     //       ],
     //       "layout": "horizontal-bars",
     //       "text": "Description: Being part of the Next.js community is like contributing to a thriving ecosystem of developers, designers, and enthusiasts. Engaging with the community through forums, events, and open source projects fosters learning, collaboration, and innovation.",
-    //       "visibleImages": 3,
+    //       "visibleSlots": 3,
     //       "title": "Community",
     //       "theme": "Ecosystem"
     //     }
@@ -293,17 +296,28 @@ export const useInputForm = () => {
         return;
       }
       if (submitter.value.startsWith('save')) {
+        setWorking('export');
+        const appStateStr = JSON.stringify(appState);
         const response = await fetch('/api/slides', {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(appState),
+          body: appStateStr,
         });
 
-        const json = await response.json();
-        console.log(json);
+        if (response.status === 401) {
+          window.localStorage.setItem('mechakucha-last-state', appStateStr);
+          setWorking(undefined);
+          await router.push({
+            pathname: '/api/auth/providers/google',
+          });
+          return;
+        }
+
+        setWorking(undefined);
+        window.alert('Slides exported!');
       }
     }
   };
@@ -323,7 +337,7 @@ export const useInputForm = () => {
               {
                 id: window.crypto.randomUUID(),
                 layout: SLIDE_LAYOUTS[Math.floor(Math.random() * SLIDE_LAYOUTS.length)],
-                visibleImages: Math.floor(Math.random() * (MAXIMUM_IMAGES + 1)),
+                visibleSlots: Math.floor(Math.random() * (MAXIMUM_IMAGES + 1)),
                 title,
                 text: '',
               } as Partial<Slide>
@@ -376,11 +390,95 @@ export const useInputForm = () => {
   };
 
   const getSingleImage = async (slide: Slide, index: number) => {
+    switch (appState.imageGenerator) {
+      case 'unsplash': {
+        const baseUrl = process.env.NEXT_PUBLIC_UNSPLASH_API_BASE_URL;
+        if (typeof baseUrl === 'undefined') {
+          throw new Error('Unsplash API base URL not defined.');
+        }
+
+        const endpoint = process.env.NEXT_PUBLIC_UNSPLASH_API_ENDPOINT;
+        if (typeof endpoint === 'undefined') {
+          throw new Error('Unsplash API endpoint not defined.');
+        }
+
+        const url = new URL(endpoint, baseUrl);
+        url.search = new URLSearchParams({
+          page: '1', // TODO get next pages!
+          query: slide.theme as string,
+          client_id: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY as string,
+        }).toString();
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Error from Unsplash API.');
+        }
+
+        const json = await response.json() as {
+          results: {
+            urls: {
+              regular: string
+            }
+          }[]
+        };
+
+        return json.results[0].urls.regular;
+      }
+      default:
+        break;
+    }
     const now = Date.now();
     return `https://picsum.photos/seed/${slide.id}-${index}-${now}/200`;
   };
 
   const addSlideImages = async (slide: Partial<Slide>): Promise<Slide> => {
+    switch (appState.imageGenerator) {
+      case 'unsplash': {
+        const baseUrl = process.env.NEXT_PUBLIC_UNSPLASH_API_BASE_URL;
+        if (typeof baseUrl === 'undefined') {
+          throw new Error('Unsplash API base URL not defined.');
+        }
+
+        const endpoint = process.env.NEXT_PUBLIC_UNSPLASH_API_ENDPOINT;
+        if (typeof endpoint === 'undefined') {
+          throw new Error('Unsplash API endpoint not defined.');
+        }
+
+        const url = new URL(endpoint, baseUrl);
+        url.search = new URLSearchParams({
+          page: '1', // TODO get next pages!
+          query: slide.theme as string,
+          client_id: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY as string,
+        }).toString();
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Error from Unsplash API.');
+        }
+
+        const json = await response.json() as {
+          results: {
+            urls: {
+              regular: string
+            }
+          }[]
+        };
+
+        const slots = json
+          .results
+          .slice(0, MAXIMUM_IMAGES)
+          .map((s) => ({
+            type: 'image',
+            url: s.urls.regular,
+          })) as ImageSlotContent[];
+
+        return {
+          ...slide,
+          slots,
+        } as Slide;
+      }
+      default:
+        break;
+    }
+
     const now = Date.now();
     const theObtainedUrls = [
       `https://picsum.photos/seed/${slide.id}-0-${now}/200`,
@@ -390,43 +488,24 @@ export const useInputForm = () => {
       `https://picsum.photos/seed/${slide.id}-4-${now}/200`,
     ];
     const newImageUrls = (
-      Array.isArray(slide.imageUrls)
+      Array.isArray(slide.slots)
         ? [
-          ...(theObtainedUrls.slice(0, slide.visibleImages ?? MAXIMUM_IMAGES)),
-          slide.imageUrls.slice(slide.visibleImages ?? MAXIMUM_IMAGES)
+          ...(theObtainedUrls.slice(0, slide.visibleSlots ?? MAXIMUM_IMAGES).map((s) => ({
+            type: 'image',
+            url: s,
+          }))),
+          slide.slots.slice(slide.visibleSlots ?? MAXIMUM_IMAGES)
         ]
-        : theObtainedUrls
-    ) as ImageUrlCollection;
+        : theObtainedUrls.map((s) => ({
+          type: 'image',
+          url: s,
+        }))
+    ) as SlotCollection;
 
     return {
       ...slide,
-      imageUrls: newImageUrls
+      slots: newImageUrls
     } as Slide;
-
-    // const url = new URL(process.env.NEXT_PUBLIC_UNSPLASH_API_ENDPOINT as string, process.env.NEXT_PUBLIC_UNSPLASH_API_BASE_URL);
-    // url.search = new URLSearchParams({
-    //   page: '1',
-    //   query: slide.theme as string,
-    //   client_id: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY as string,
-    // }).toString();
-    // const response = await fetch(url);
-    // const json = await response.json() as {
-    //   results: {
-    //     urls: {
-    //       regular: string
-    //     }
-    //   }[]
-    // };
-    //
-    // const imageUrls = json
-    //   .results
-    //   .slice(0, MAXIMUM_IMAGES)
-    //   .map((s) => s.urls.regular) as ImageUrlCollection;
-    //
-    // return {
-    //   ...slide,
-    //   imageUrls,
-    // } as Slide;
   };
 
   const addImages = async (slides: Partial<Slide>[]): Promise<Slide[]> => {
@@ -525,7 +604,11 @@ export const useInputForm = () => {
     }
     const slideId = router.query.slide;
     const name = e.currentTarget.name;
-    const value = e.currentTarget.value;
+    const value = (
+      e.currentTarget.tagName === 'INPUT' && e.currentTarget.type === 'number'
+        ? (e.currentTarget as HTMLElementTagNameMap['input']).valueAsNumber
+        : e.currentTarget.value
+    );
     setAppState((oldAppState) => ({
       ...oldAppState,
       slides: oldAppState?.slides?.map((s) => (
@@ -549,7 +632,7 @@ export const useInputForm = () => {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
       fileReader.addEventListener('error', (e) => {
-        reject();
+        reject(e);
       })
 
       fileReader.addEventListener('load', async (e) => {
@@ -563,6 +646,8 @@ export const useInputForm = () => {
             slide: newAppState.slides[0].id,
           }
         });
+        params?.refresh?.();
+        resolve();
       });
 
       fileReader.readAsText(file);
@@ -606,7 +691,7 @@ export const useInputForm = () => {
     setSlideImageLoading((oldSlideImageLoading) => oldSlideImageLoading.filter((s) => s !== thisIndex));
   };
 
-  const handleCurrentSlideImageRegenerate: MouseEventHandler<HTMLElementTagNameMap['button']> = async (e) => {
+  const handleCurrentSlideImageRegenerate: FormEventHandler<HTMLElementTagNameMap['form']> = async (e) => {
     e.preventDefault();
     const currentSlide = appState.slides?.find((s) => s.id === router.query.slide);
     if (typeof currentSlide === 'undefined') {
@@ -622,39 +707,66 @@ export const useInputForm = () => {
     }
     const siblings = Array.from(grandparent.children);
     const thisIndex = siblings.findIndex((el) => el === parent);
-    setSlideImageLoading((oldSlideImageLoading) => [
-      ...oldSlideImageLoading,
-      thisIndex
-    ]);
-    const image = await getSingleImage(currentSlide, thisIndex);
-    const newSlide: Slide = {
-      ...currentSlide,
-      imageUrls: [
-        ...currentSlide.imageUrls.slice(0, thisIndex),
-        image,
-        ...currentSlide.imageUrls.slice(thisIndex)
-      ] as ImageUrlCollection,
-    };
-    setAppState((oldAppState) => ({
-      ...oldAppState,
-      slides: oldAppState.slides?.map((oldSlide) => (
-        oldSlide.id === newSlide.id
-          ? newSlide
-          : oldSlide
-      ))
-    }));
+
+    const { submitter } = e.nativeEvent as unknown as { submitter: HTMLButtonElement };
+    if (submitter.name === 'action') {
+      switch (submitter.value) {
+        case 'regenerate': {
+          setSlideImageLoading((oldSlideImageLoading) => [
+            ...oldSlideImageLoading,
+            thisIndex
+          ]);
+          const image = await getSingleImage(currentSlide, thisIndex);
+          const newSlide: Slide = {
+            ...currentSlide,
+            slots: [
+              ...currentSlide.slots.slice(0, thisIndex),
+              {
+                type: 'image',
+                url: image,
+              },
+              ...currentSlide.slots.slice(thisIndex)
+            ] as SlotCollection,
+          };
+          setAppState((oldAppState) => ({
+            ...oldAppState,
+            slides: oldAppState.slides?.map((oldSlide) => (
+              oldSlide.id === newSlide.id
+                ? newSlide
+                : oldSlide
+            ))
+          }));
+          return;
+        }
+        default:
+          break;
+      }
+    }
   }
 
   useEffect(() => {
     if (
       (typeof appState.title === 'undefined' || typeof appState.input === 'undefined')
-      && typeof router.query.input !== 'string'
     ) {
-      router.replace({
-        query: {
-          input: 'true'
+      const lastStateStr = window.localStorage.getItem('mechakucha-last-state');
+      let lastState = null;
+      try {
+        if (lastStateStr !== null) {
+          lastState = JSON.parse(lastStateStr);
         }
-      });
+      } catch {
+        lastState = null;
+      }
+      if (lastState === null || typeof router.query.input !== 'string') {
+        void router.replace({
+          query: {
+            input: 'true'
+          }
+        });
+        return;
+      }
+      setAppState(lastState as AppState);
+      window.localStorage.removeItem('mechakucha-last-state');
     }
   }, []);
 
@@ -671,5 +783,6 @@ export const useInputForm = () => {
     slideImageLoading,
     appState,
     formKey,
+    working,
   };
 };

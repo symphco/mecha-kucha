@@ -4,10 +4,13 @@ import {AppState} from '@/common';
 
 export interface PresentationActionFormProps extends HTMLProps<HTMLElementTagNameMap['form']> {
   defaultValues?: AppState;
+  working?: string;
 }
 
 export const PresentationActionForm: FC<PresentationActionFormProps> = ({
   defaultValues,
+  disabled,
+  working,
   ...etcProps
 }) => {
   return (
@@ -15,7 +18,7 @@ export const PresentationActionForm: FC<PresentationActionFormProps> = ({
       {...etcProps}
       aria-label="Presentation Action Form"
     >
-      <fieldset className="contents">
+      <fieldset className="contents" disabled={disabled}>
         <legend className="sr-only">Presentation Actions</legend>
         <input
           type="hidden"
@@ -61,7 +64,7 @@ export const PresentationActionForm: FC<PresentationActionFormProps> = ({
               name="action"
               value="save"
             >
-              Save
+              {working === 'export' ? 'Exporting...' : 'Export'}
             </ActionButton>
           </div>
         </div>

@@ -19,7 +19,7 @@ export const CheckboxButton: React.FC<CheckboxButtonProps> = ({
 }) => {
   return (
     <label
-      className={`flex items-center gap-4 h-12 border-2 rounded overflow-hidden pl-4 pr-8 font-bold has-[:disabled]:opacity-50 ${className}`.trim()}
+      className={`whitespace-nowrap flex items-center gap-4 h-12 border-2 rounded overflow-hidden pl-4 pr-8 font-bold has-[:disabled]:opacity-50 ${className}`.trim()}
     >
       <CheckboxButtonDerivedElementComponent
         {...etcProps}
