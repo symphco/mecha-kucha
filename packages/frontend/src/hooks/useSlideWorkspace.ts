@@ -22,21 +22,19 @@ export const useSlideWorkspace = (params = {} as UseSlideWorkspaceParams) => {
       }
 
       const parentStyles = window.getComputedStyle(parent);
-      const parentAspectRatio = (
-        parent.clientWidth - parseFloat(parentStyles.paddingLeft) - parseFloat(parentStyles.paddingRight)
-      ) / (
-        parent.clientHeight - parseFloat(parentStyles.paddingTop) - parseFloat(parentStyles.paddingBottom)
-      );
+      const parentWidth = parent.clientWidth - parseFloat(parentStyles.paddingLeft) - parseFloat(parentStyles.paddingRight);
+      const parentHeight = parent.clientHeight - parseFloat(parentStyles.paddingTop) - parseFloat(parentStyles.paddingBottom);
+      const parentAspectRatio = parentWidth / parentHeight;
       const currentAspectRatio = 16 / 9;
 
       if (parentAspectRatio < currentAspectRatio) {
-        current.style.width = '100%';
-        current.style.height = `${current.clientWidth * (1 / currentAspectRatio)}px`;
+        current.style.width = `${parentWidth}px`;
+        current.style.height = `${parentWidth * (1 / currentAspectRatio)}px`;
         return;
       }
 
-      current.style.width = `${current.clientHeight * currentAspectRatio}px`;
-      current.style.height = '100%';
+      current.style.width = `${parentHeight * currentAspectRatio}px`;
+      current.style.height = `${parentHeight}px`;
     });
   }, []);
 
@@ -52,15 +50,11 @@ export const useSlideWorkspace = (params = {} as UseSlideWorkspaceParams) => {
   }, [refresh]);
 
   useEffect(() => {
-    const listen = () => {
-      refresh();
-    };
-
-    params.router?.events.on('routeChangeComplete', listen);
+    params.router?.events.on('routeChangeComplete', refresh);
     return () => {
-       params.router?.events.off('routeChangeComplete', listen);
+      params.router?.events.off('routeChangeComplete', refresh);
     };
-  }, [params.router?.events, refresh]);
+  }, [params.router, refresh]);
 
   return {
     mainSlideDisplayRef,
