@@ -1,0 +1,9 @@
+steps:
+  - name: node:$_NODE_VERSION
+    entrypoint: pnpm
+    args: [ 'install' ]
+  # todo add generate env
+  - name: node:$_NODE_VERSION
+    entrypoint: pnpm
+    args: [ 'build' ]
+timeout: 1800s

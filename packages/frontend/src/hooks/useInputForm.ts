@@ -7,7 +7,7 @@ import {
   useEffect,
   useState,
 } from 'react';
-import {AppState, SlotCollection, MAXIMUM_IMAGES, Slide, SLIDE_LAYOUTS, ImageSlotContent, SlotContent} from '@/common';
+import {AppState, SlotCollection, MAXIMUM_IMAGES, Slide, SLIDE_LAYOUTS, ImageSlotContent} from '@symphco/mecha-kucha-common';
 
 interface UseInputFormParams {
   refresh?: (...args: unknown[]) => unknown;
@@ -298,14 +298,17 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
       if (submitter.value.startsWith('save')) {
         setWorking('export');
         const appStateStr = JSON.stringify(appState);
-        const response = await fetch('/api/slides', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: appStateStr,
-        });
+        const response = await fetch(
+          '/api/presentations',
+          {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: appStateStr,
+          }
+        );
 
         if (response.status === 401) {
           window.localStorage.setItem('mechakucha-last-state', appStateStr);
@@ -390,121 +393,35 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
   };
 
   const getSingleImage = async (slide: Slide, index: number) => {
-    switch (appState.imageGenerator) {
-      case 'unsplash': {
-        const baseUrl = process.env.NEXT_PUBLIC_UNSPLASH_API_BASE_URL;
-        if (typeof baseUrl === 'undefined') {
-          throw new Error('Unsplash API base URL not defined.');
-        }
-
-        const endpoint = process.env.NEXT_PUBLIC_UNSPLASH_API_ENDPOINT;
-        if (typeof endpoint === 'undefined') {
-          throw new Error('Unsplash API endpoint not defined.');
-        }
-
-        const url = new URL(endpoint, baseUrl);
-        url.search = new URLSearchParams({
-          page: '1', // TODO get next pages!
-          query: slide.theme as string,
-          client_id: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY as string,
-        }).toString();
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error('Error from Unsplash API.');
-        }
-
-        const json = await response.json() as {
-          results: {
-            urls: {
-              regular: string
-            }
-          }[]
-        };
-
-        return json.results[0].urls.regular;
-      }
-      default:
-        break;
+    const r = await fetch(
+      `/api/images/${appState.imageGenerator}/generate-single?index=${index}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(slide),
+      },
+    )
+    if (!r.ok) {
+      throw new Error('Error from Image Generator API.');
     }
-    const now = Date.now();
-    return `https://picsum.photos/seed/${slide.id}-${index}-${now}/200`;
+    const rr = await r.json();
+    return rr as ImageSlotContent;
   };
 
   const addSlideImages = async (slide: Partial<Slide>): Promise<Slide> => {
-    switch (appState.imageGenerator) {
-      case 'unsplash': {
-        const baseUrl = process.env.NEXT_PUBLIC_UNSPLASH_API_BASE_URL;
-        if (typeof baseUrl === 'undefined') {
-          throw new Error('Unsplash API base URL not defined.');
-        }
-
-        const endpoint = process.env.NEXT_PUBLIC_UNSPLASH_API_ENDPOINT;
-        if (typeof endpoint === 'undefined') {
-          throw new Error('Unsplash API endpoint not defined.');
-        }
-
-        const url = new URL(endpoint, baseUrl);
-        url.search = new URLSearchParams({
-          page: '1', // TODO get next pages!
-          query: slide.theme as string,
-          client_id: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY as string,
-        }).toString();
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error('Error from Unsplash API.');
-        }
-
-        const json = await response.json() as {
-          results: {
-            urls: {
-              regular: string
-            }
-          }[]
-        };
-
-        const slots = json
-          .results
-          .slice(0, MAXIMUM_IMAGES)
-          .map((s) => ({
-            type: 'image',
-            url: s.urls.regular,
-          })) as ImageSlotContent[];
-
-        return {
-          ...slide,
-          slots,
-        } as Slide;
-      }
-      default:
-        break;
+    const r = await fetch(
+      `/api/images/${appState.imageGenerator}/generate`,
+      {
+        method: 'POST',
+        body: JSON.stringify(slide),
+      },
+    )
+    if (!r.ok) {
+      throw new Error('Error from Image Generator API.');
     }
-
-    const now = Date.now();
-    const theObtainedUrls = [
-      `https://picsum.photos/seed/${slide.id}-0-${now}/200`,
-      `https://picsum.photos/seed/${slide.id}-1-${now}/200`,
-      `https://picsum.photos/seed/${slide.id}-2-${now}/200`,
-      `https://picsum.photos/seed/${slide.id}-3-${now}/200`,
-      `https://picsum.photos/seed/${slide.id}-4-${now}/200`,
-    ];
-    const newImageUrls = (
-      Array.isArray(slide.slots)
-        ? [
-          ...(theObtainedUrls.slice(0, slide.visibleSlots ?? MAXIMUM_IMAGES).map((s) => ({
-            type: 'image',
-            url: s,
-          }))),
-          slide.slots.slice(slide.visibleSlots ?? MAXIMUM_IMAGES)
-        ]
-        : theObtainedUrls.map((s) => ({
-          type: 'image',
-          url: s,
-        }))
-    ) as SlotCollection;
-
+    const rr = await r.json();
     return {
       ...slide,
-      slots: newImageUrls
+      slots: rr
     } as Slide;
   };
 
@@ -537,24 +454,25 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     const title = valuesRaw.get('title') as string ?? '';
     const { submitter } = e.nativeEvent as unknown as { submitter: HTMLButtonElement };
     if (submitter.name === 'submit' && submitter.value === 'inspire-me') {
-      const url = new URL(process.env.NEXT_PUBLIC_AIROPS_API_ENDPOINT as string, process.env.NEXT_PUBLIC_AIROPS_API_BASE_URL);
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIROPS_API_KEY as string}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: title,
-        }),
-      });
+      const response = await fetch(
+        '/api/contents/airops/generate',
+        {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title,
+          }),
+        }
+      );
       const responseBody = await response.json();
       setFormKey(Date.now());
       setAppState((oldAppState) => ({
         ...oldAppState,
         title,
-        input: responseBody.result.response,
+        input: responseBody,
       }));
       setInputFormWorking(false);
       return;
@@ -721,10 +639,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
             ...currentSlide,
             slots: [
               ...currentSlide.slots.slice(0, thisIndex),
-              {
-                type: 'image',
-                url: image,
-              },
+              image,
               ...currentSlide.slots.slice(thisIndex)
             ] as SlotCollection,
           };

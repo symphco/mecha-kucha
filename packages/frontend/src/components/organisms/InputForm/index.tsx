@@ -1,5 +1,5 @@
 import {FC, HTMLProps} from 'react';
-import {AppState} from '@/common';
+import {AppState} from '@symphco/mecha-kucha-common';
 import {TextInput} from '@/components/molecules/TextInput';
 import {MultilineTextInput} from '@/components/molecules/MultilineTextInput';
 import {ActionButton} from '@/components/molecules/ActionButton';

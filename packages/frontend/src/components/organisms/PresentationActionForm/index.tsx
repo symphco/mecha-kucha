@@ -1,6 +1,6 @@
 import {FC, HTMLProps} from 'react';
+import {AppState} from '@symphco/mecha-kucha-common';
 import {ActionButton} from '@/components/molecules/ActionButton';
-import {AppState} from '@/common';
 
 export interface PresentationActionFormProps extends HTMLProps<HTMLElementTagNameMap['form']> {
   defaultValues?: AppState;

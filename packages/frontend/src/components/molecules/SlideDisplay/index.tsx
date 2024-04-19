@@ -1,5 +1,5 @@
 import {FC, FormEventHandler, ReactEventHandler} from 'react';
-import {getImageLayouts, Slide} from '@/common';
+import {getImageLayouts, Slide} from '@symphco/mecha-kucha-common';
 
 export interface SlideDisplayProps {
   slide: Slide;

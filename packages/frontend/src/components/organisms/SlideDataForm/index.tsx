@@ -1,6 +1,6 @@
 import {DropdownInput} from '@/components/molecules/DropdownInput';
 import {ChangeEventHandler, FC, HTMLProps} from 'react';
-import {MAXIMUM_IMAGES, Slide, SLIDE_LAYOUTS} from '@/common';
+import {MAXIMUM_IMAGES, Slide, SLIDE_LAYOUTS} from '@symphco/mecha-kucha-common';
 import {NumberInput} from '@/components/molecules/NumberInput';
 import {MultilineTextInput} from '@/components/molecules/MultilineTextInput';
 import {TextInput} from '@/components/molecules/TextInput';
