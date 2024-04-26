@@ -11,8 +11,8 @@ steps:
     dir: 'packages/backend'
   - name: node:$_NODE_VERSION
     entrypoint: pnpm
-    args: [ '--filter' '@symphco/mecha-kucha-frontend' 'build' ]
+    args: [ '--filter' '@symphco/mecha-kucha-backend' 'build' ]
   - name: 'gcr.io/cloud-builders/gcloud'
     args: [ 'app', 'deploy', 'app.yaml' ]
-    dir: 'packages/frontend'
+    dir: 'packages/backend'
 timeout: 1800s
