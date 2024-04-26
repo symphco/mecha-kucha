@@ -12,7 +12,7 @@
     "pridepack"
   ],
   "devDependencies": {
-    "@symphco/mecha-kucha-common": "*",
+    "@symphco/mecha-kucha-common": "workspace:*",
     "@types/node": "^20.11.0",
     "pridepack": "2.6.0",
     "tslib": "^2.6.2",
