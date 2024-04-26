@@ -45,5 +45,22 @@
   "author": "Allan Crisostomo <allan@symph.co>",
   "publishConfig": {
     "access": "restricted"
+  },
+  "types": "./dist/types/index.d.ts",
+  "main": "./dist/cjs/production/index.js",
+  "module": "./dist/esm/production/index.js",
+  "exports": {
+    ".": {
+      "development": {
+        "require": "./dist/cjs/development/index.js",
+        "import": "./dist/esm/development/index.js"
+      },
+      "require": "./dist/cjs/production/index.js",
+      "import": "./dist/esm/production/index.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {}
   }
 }
