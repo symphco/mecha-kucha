@@ -1,11 +1,8 @@
 steps:
-  - name: node:$_NODE_VERSION
-    entrypoint: npm
-    args: [ 'install', '-g', 'pnpm' ]
-  - name: node:$_NODE_VERSION
+  - name: ianwalter/pnpm
     entrypoint: pnpm
     args: [ 'install' ]
-  - name: node:$_NODE_VERSION
+  - name: ianwalter/pnpm
     entrypoint: pnpm
     args: [ '--filter', '@symphco/mecha-kucha-common', 'build' ]
   - name: 'gcr.io/cloud-builders/docker'
@@ -29,7 +26,7 @@ steps:
       - 'AIROPS_API_ACCESS_TOKEN_TYPE=${_AIROPS_API_ACCESS_TOKEN_TYPE}'
       - 'GOOGLE_SLIDES_API_BASE_URL=${_GOOGLE_SLIDES_API_BASE_URL}'
       - 'GOOGLE_SLIDES_API_PRESENTATIONS_ENDPOINT=${_GOOGLE_SLIDES_API_PRESENTATIONS_ENDPOINT}'
-  - name: node:$_NODE_VERSION
+  - name: ianwalter/pnpm
     entrypoint: pnpm
     args: [ '--filter', '@symphco/mecha-kucha-backend', 'build' ]
   - name: 'gcr.io/cloud-builders/gcloud'
