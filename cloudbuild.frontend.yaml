@@ -1,18 +1,18 @@
 steps:
-  - name: node:$_NODE_VERSION
+  - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
     args: [ 'install' ]
-  - name: node:$_NODE_VERSION
+  - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
     args: [ '--filter', '@symphco/mecha-kucha-common', 'build' ]
   - name: 'gcr.io/cloud-builders/docker'
     entrypoint: /bin/bash
     args: [ '-c', 'printenv > .env' ]
-    dir: 'packages/backend'
-  - name: node:$_NODE_VERSION
+    dir: 'packages/frontend'
+    # TODO add env
+  - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
     args: [ '--filter', '@symphco/mecha-kucha-frontend', 'build' ]
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: [ 'app', 'deploy', 'app.yaml' ]
-    dir: 'packages/frontend'
+    args: [ 'app', 'deploy', 'app.frontend.yaml' ]
 timeout: 1800s

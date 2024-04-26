@@ -30,5 +30,5 @@ steps:
     entrypoint: pnpm
     args: [ '--filter', '@symphco/mecha-kucha-backend', 'build' ]
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: [ 'app', 'deploy', 'packages/backend/app.yaml' ]
+    args: [ 'app', 'deploy', 'app.backend.yaml' ]
 timeout: 1800s
