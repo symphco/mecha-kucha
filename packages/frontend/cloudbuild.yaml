@@ -4,15 +4,14 @@ steps:
     args: [ 'install' ]
   - name: node:$_NODE_VERSION
     entrypoint: pnpm
-    args: [ '--filter' '@symphco/mecha-kucha-common' 'build' ]
+    args: [ '--filter', '@symphco/mecha-kucha-common', 'build' ]
   - name: 'gcr.io/cloud-builders/docker'
     entrypoint: /bin/bash
     args: [ '-c', 'printenv > .env' ]
     dir: 'packages/backend'
-    env:
   - name: node:$_NODE_VERSION
     entrypoint: pnpm
-    args: [ '--filter' '@symphco/mecha-kucha-frontend' 'build' ]
+    args: [ '--filter', '@symphco/mecha-kucha-frontend', 'build' ]
   - name: 'gcr.io/cloud-builders/gcloud'
     args: [ 'app', 'deploy', 'app.yaml' ]
     dir: 'packages/frontend'

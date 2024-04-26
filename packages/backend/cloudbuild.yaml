@@ -4,7 +4,7 @@ steps:
     args: [ 'install' ]
   - name: node:$_NODE_VERSION
     entrypoint: pnpm
-    args: [ '--filter' '@symphco/mecha-kucha-common' 'build' ]
+    args: [ '--filter', '@symphco/mecha-kucha-common', 'build' ]
   - name: 'gcr.io/cloud-builders/docker'
     entrypoint: /bin/bash
     args: [ '-c', 'printenv > .env' ]
@@ -28,7 +28,7 @@ steps:
       - 'GOOGLE_SLIDES_API_PRESENTATIONS_ENDPOINT=${_GOOGLE_SLIDES_API_PRESENTATIONS_ENDPOINT}'
   - name: node:$_NODE_VERSION
     entrypoint: pnpm
-    args: [ '--filter' '@symphco/mecha-kucha-backend' 'build' ]
+    args: [ '--filter', '@symphco/mecha-kucha-backend', 'build' ]
   - name: 'gcr.io/cloud-builders/gcloud'
     args: [ 'app', 'deploy', 'app.yaml' ]
     dir: 'packages/backend'
