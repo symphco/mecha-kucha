@@ -1,5 +1,8 @@
 steps:
   - name: node:$_NODE_VERSION
+    entrypoint: npm
+    args: [ 'install', '-g', 'pnpm' ]
+  - name: node:$_NODE_VERSION
     entrypoint: pnpm
     args: [ 'install' ]
   - name: node:$_NODE_VERSION
