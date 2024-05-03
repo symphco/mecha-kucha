@@ -1,5 +1,5 @@
 import { NextPage } from 'next';
-import {DragEventHandler, Fragment, MutableRefObject, useEffect, useRef} from 'react';
+import {DragEventHandler, Fragment} from 'react';
 import Link from 'next/link';
 import {useRouter} from 'next/router';
 import {InputForm} from '@/components/organisms/InputForm';

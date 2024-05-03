@@ -34,7 +34,7 @@ export namespace content {
 
   export namespace airops {
     export const endpoint = process.env.AIROPS_API_ENDPOINT as string;
-    export const baseUrl = process.env.API_BASE_URL as string;
+    export const baseUrl = process.env.AIROPS_API_BASE_URL as string;
     export const accessToken = process.env.AIROPS_API_ACCESS_TOKEN as string;
     export const accessTokenAuthType = process.env.AIROPS_API_ACCESS_TOKEN_TYPE as string;
   }

@@ -10,12 +10,17 @@ export class ContentServiceImpl implements ContentService {
   }
 
   async generate(title: string) {
+    if (title.trim().length < 1) {
+      throw new Error('Title must not be empty.');
+    }
+
     switch (this.source) {
       case 'airops': {
         const url = new URL(
           config.content[this.source].endpoint,
           config.content[this.source].baseUrl,
         );
+
         const response = await fetch(url, {
           method: 'POST',
           headers: {
@@ -27,12 +32,14 @@ export class ContentServiceImpl implements ContentService {
             message: title,
           }),
         });
+
         if (response.ok) {
           const responseBody = await response.json() as any;
           return responseBody.result.response as string;
         }
 
-        throw new Error('Error in response.');
+        const cause = await response.json();
+        throw new Error('Error in response.', { cause });
       }
       default:
         break;

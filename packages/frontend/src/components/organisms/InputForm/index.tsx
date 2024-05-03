@@ -47,7 +47,7 @@ export const InputForm: FC<InputFormProps> = ({
               name="imageGenerator"
               defaultValue={defaultValues?.imageGenerator}
             >
-              <option value="">
+              <option value="picsum">
                 Picsum
               </option>
               <option value="unsplash">

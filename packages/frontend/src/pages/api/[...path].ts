@@ -24,8 +24,11 @@ const handler: NextApiHandler = async (req, res) => {
     return;
   }
 
-  const r = await response.json();
-  res.json(r);
+  if (response.headers.get('Content-Type')?.startsWith('application/json')) {
+    res.json(await response.json());
+    return;
+  }
+  res.json(await response.text());
 
   // TODO error handling!
   // TODO add slide captions when there are no images

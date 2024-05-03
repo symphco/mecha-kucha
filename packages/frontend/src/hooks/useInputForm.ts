@@ -407,12 +407,16 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     return rr as ImageSlotContent;
   };
 
-  const addSlideImages = async (slide: Partial<Slide>): Promise<Slide> => {
+  const addSlideImages = async (slide: Partial<Slide>, imageGenerator: string): Promise<Slide> => {
     const r = await fetch(
-      `/api/images/${appState.imageGenerator}/generate`,
+      `/api/images/${imageGenerator}/generate`,
       {
         method: 'POST',
         body: JSON.stringify(slide),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
       },
     )
     if (!r.ok) {
@@ -425,9 +429,9 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     } as Slide;
   };
 
-  const addImages = async (slides: Partial<Slide>[]): Promise<Slide[]> => {
+  const addImages = async (slides: Partial<Slide>[], imageGenerator: string): Promise<Slide[]> => {
     const result = await Promise.allSettled(
-      slides.map((slide) => addSlideImages(slide))
+      slides.map((slide) => addSlideImages(slide, imageGenerator))
     );
 
     return result.map((r, i) => {
@@ -468,12 +472,16 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
         }
       );
       const responseBody = await response.json();
-      setFormKey(Date.now());
-      setAppState((oldAppState) => ({
-        ...oldAppState,
-        title,
-        input: responseBody,
-      }));
+      if (response.ok) {
+        setFormKey(Date.now());
+        setAppState((oldAppState) => ({
+          ...oldAppState,
+          title,
+          input: responseBody,
+        }));
+      } else {
+        window.alert(responseBody.message);
+      }
       setInputFormWorking(false);
       return;
     }
@@ -495,7 +503,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
       return;
     }
 
-    const resultSlides = await addImages(theSlides);
+    const resultSlides = await addImages(theSlides, valuesRaw.get('imageGenerator') as string);
     setAppState((oldAppState) => ({
       ...oldAppState,
       ...values,
