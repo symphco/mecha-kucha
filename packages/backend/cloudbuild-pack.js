@@ -5,9 +5,16 @@ const packageJson = require('./package.json');
 
 const ensure = (fn) => async (...args) => {
   try {
+    if (fn === child_process.spawnSync) {
+      console.log('$', args[0], ...args[1]);
+    } else if (fn === fs.cp || fn === fs.rm || fn === fs.mkdir) {
+      console.log('$', fn.name, ...args);
+    } else {
+      console.log(`!node: ${fn.name}`, ...args);
+    }
     await fn(...args);
   } catch (err) {
-    console.log(err);
+    console.warn(err);
     // noop
   }
 };
@@ -48,7 +55,7 @@ const main = async (destDir) => {
   await Promise.all(
     workspaceDependencies.map(async (d) => {
       const archiveName = `${d.replace(/\//g, '__')}.tgz`;
-      child_process.spawnSync('tar', [
+      await ensure(child_process.spawnSync)('tar', [
         '-czhf',
         archiveName,
         '-C',
