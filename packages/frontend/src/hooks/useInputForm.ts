@@ -254,6 +254,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
       title: undefined,
       input: undefined,
       slides: undefined,
+      imageGenerator: 'picsum',
     }
   );
 
@@ -325,7 +326,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     }
   };
 
-  const makeSlides = (input: string): Partial<Slide>[] => {
+  const makeSlides = (input: string, imageGenerator: string): Partial<Slide>[] => {
     const theSlides: Partial<Slide>[] = input
       .split('\n')
       .filter((s) => s.trim().length > 0)
@@ -339,6 +340,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
               ...previousSlides,
               {
                 id: window.crypto.randomUUID(),
+                imageGenerator,
                 layout: SLIDE_LAYOUTS[Math.floor(Math.random() * SLIDE_LAYOUTS.length)],
                 visibleSlots: Math.floor(Math.random() * (MAXIMUM_IMAGES + 1)),
                 title,
@@ -394,7 +396,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
 
   const getSingleImage = async (slide: Slide, index: number) => {
     const r = await fetch(
-      `/api/images/${appState.imageGenerator}/generate-single?index=${index}`,
+      `/api/images/${slide.imageGenerator}/generate-single?index=${index}`,
       {
         method: 'POST',
         body: JSON.stringify(slide),
@@ -407,9 +409,9 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     return rr as ImageSlotContent;
   };
 
-  const addSlideImages = async (slide: Partial<Slide>, imageGenerator: string): Promise<Slide> => {
+  const addSlideImages = async (slide: Partial<Slide>): Promise<Slide> => {
     const r = await fetch(
-      `/api/images/${imageGenerator}/generate`,
+      `/api/images/${slide.imageGenerator}/generate`,
       {
         method: 'POST',
         body: JSON.stringify(slide),
@@ -429,9 +431,9 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     } as Slide;
   };
 
-  const addImages = async (slides: Partial<Slide>[], imageGenerator: string): Promise<Slide[]> => {
+  const addImages = async (slides: Partial<Slide>[]): Promise<Slide[]> => {
     const result = await Promise.allSettled(
-      slides.map((slide) => addSlideImages(slide, imageGenerator))
+      slides.map((slide) => addSlideImages(slide))
     );
 
     return result.map((r, i) => {
@@ -456,6 +458,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     setInputFormWorking(true);
     const valuesRaw = new FormData(e.currentTarget);
     const title = valuesRaw.get('title') as string ?? '';
+    const imageGenerator = valuesRaw.get('imageGenerator') as string ?? '';
     const { submitter } = e.nativeEvent as unknown as { submitter: HTMLButtonElement };
     if (submitter.name === 'submit' && submitter.value === 'inspire-me') {
       const response = await fetch(
@@ -477,7 +480,12 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
         setAppState((oldAppState) => ({
           ...oldAppState,
           title,
+          imageGenerator,
           input: responseBody,
+          slides: Array.isArray(oldAppState.slides) ? oldAppState.slides.map((s) => ({
+            ...s,
+            imageGenerator,
+          })) : oldAppState.slides,
         }));
       } else {
         window.alert(responseBody.message);
@@ -490,12 +498,13 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     const values = {
       title,
       input,
+      imageGenerator,
     };
 
     setSlideImageLoading([0, 1, 2, 3, 4]);
     let theSlides: Partial<Slide>[];
     try {
-      theSlides = makeSlides(input);
+      theSlides = makeSlides(input, imageGenerator);
     } catch (errRaw) {
       const err = errRaw as Error;
       // TODO better error handling!
@@ -503,7 +512,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
       return;
     }
 
-    const resultSlides = await addImages(theSlides, valuesRaw.get('imageGenerator') as string);
+    const resultSlides = await addImages(theSlides);
     setAppState((oldAppState) => ({
       ...oldAppState,
       ...values,
@@ -591,7 +600,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
         return;
       }
       setSlideImageLoading([0, 1, 2, 3, 4]);
-      const slideWithNewImages = await addSlideImages(thisSlide, valuesRaw.get('imageGenerator') as string);
+      const slideWithNewImages = await addSlideImages(thisSlide);
       setAppState((oldAppState) => ({
         ...oldAppState,
         slides: oldAppState.slides?.map((oldSlide) => (

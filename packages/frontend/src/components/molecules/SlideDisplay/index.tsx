@@ -73,6 +73,11 @@ export const SlideDisplay: FC<SlideDisplayProps> = ({
                 >
                   Slide Slot Form
                 </legend>
+                <input
+                  type="hidden"
+                  name="imageGenerator"
+                  value={slide.imageGenerator}
+                />
                 <button
                   className="border-0 h-12 px-4"
                   type="submit"

@@ -33,6 +33,11 @@ export const SlideDataForm: FC<SlideDataFormProps> = ({
           name="id"
           defaultValue={currentSlide?.id}
         />
+        <input
+          type="hidden"
+          name="imageGenerator"
+          defaultValue={currentSlide?.imageGenerator}
+        />
         <div className="grid grid-cols-2 gap-4">
           <div>
             <TextInput

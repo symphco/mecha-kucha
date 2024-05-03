@@ -22,6 +22,7 @@ export type SlideLayout = typeof SLIDE_LAYOUTS[number];
 
 export interface Slide {
   id: string;
+  imageGenerator: string;
   title: string;
   theme: string;
   layout: SlideLayout;
@@ -35,7 +36,7 @@ export interface AppState {
   title?: string;
   input?: string;
   slides?: Slide[];
-  imageGenerator?: string;
+  imageGenerator: string;
 }
 
 export const MAXIMUM_IMAGES = 5 as const;
