@@ -124,9 +124,13 @@ const main = async (config) => {
 void main({
   assets: [
     {
-      path: 'dist/cjs/production/index.js',
-      dest: 'server.js',
-      main: true,
+      path: '.next',
+    },
+    {
+      path: 'next.config.js',
+    },
+    {
+      path: 'public',
     },
     {
       path: 'app.yaml',
@@ -135,5 +139,6 @@ void main({
       path: '.env',
     }
   ],
+  start: 'next start',
   destDir: '.cloudbuild',
 });
