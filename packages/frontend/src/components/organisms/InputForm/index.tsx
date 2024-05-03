@@ -74,15 +74,17 @@ export const InputForm: FC<InputFormProps> = ({
             <p>
               Step 2: Follow the format for your input as follows:
             </p>
-            <pre className="text-xs relative after:absolute after:top-0 after:left-0 after:w-full after:h-full after:opacity-10 after:bg-current p-4">
+            <pre className="text-xs relative after:pointer-events-none after:absolute after:top-0 after:left-0 after:w-full after:h-full after:opacity-10 after:bg-current p-4">
               <code>
                 Part 1: Slide Title<br />
                 Theme: Nature<br />
                 Slide notes for slide 1 here<br />
                 <br />
-                Part 2: Slide Title<br />
-                Theme: Nature<br />
-                Slide notes for slide 2 go here
+                Part 2: Another Slide Title<br />
+                Theme: Industry<br />
+                Slide notes for slide 2 go here<br />
+                <br />
+                ...
               </code>
             </pre>
             <MultilineTextInput
