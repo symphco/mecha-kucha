@@ -591,7 +591,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
         return;
       }
       setSlideImageLoading([0, 1, 2, 3, 4]);
-      const slideWithNewImages = await addSlideImages(thisSlide);
+      const slideWithNewImages = await addSlideImages(thisSlide, valuesRaw.get('imageGenerator') as string);
       setAppState((oldAppState) => ({
         ...oldAppState,
         slides: oldAppState.slides?.map((oldSlide) => (
