@@ -8,16 +8,16 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     entrypoint: /bin/bash
     args: [ '-c', 'printenv > .env' ]
-    dir: 'packages/frontend'
+    env:
+      - 'NEXT_PUBLIC_BACKEND_BASE_URL=${_NEXT_PUBLIC_BACKEND_BASE_URL}'
+      - 'PORT=${PORT}'
   - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
     args: [ 'build' ]
-    dir: 'packages/frontend'
   - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
     args: [ 'cloudbuild-pack' ]
-    dir: 'packages/frontend'
   - name: 'gcr.io/cloud-builders/gcloud'
     args: [ 'app', 'deploy', 'app.yaml' ]
-    dir: 'packages/frontend/.cloudbuild'
+    dir: '.cloudbuild'
 timeout: 1800s

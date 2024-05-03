@@ -1,11 +1,12 @@
 {
   "name": "@symphco/mecha-kucha-frontend",
-  "version": "0.1.0",
+  "version": "0.0.0",
+  "description": "Frontend for mecha-kucha.",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 3000",
+    "start": "next start",
     "lint": "next lint",
     "cloudbuild-pack": "node ./cloudbuild-pack"
   },
