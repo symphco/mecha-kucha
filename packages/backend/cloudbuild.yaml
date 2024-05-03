@@ -28,7 +28,13 @@ steps:
       - 'GOOGLE_SLIDES_API_PRESENTATIONS_ENDPOINT=${_GOOGLE_SLIDES_API_PRESENTATIONS_ENDPOINT}'
   - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
-    args: [ '--filter', '@symphco/mecha-kucha-backend', 'build' ]
+    args: [ 'build' ]
+    dir: 'packages/backend'
+  - name: guergeiro/pnpm:current-8
+    entrypoint: pnpm
+    args: [ 'cloudbuild-pack' ]
+    dir: 'packages/backend'
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: [ 'app', 'deploy', 'app.backend.yaml' ]
+    args: [ 'app', 'deploy', 'app.yaml' ]
+    dir: 'packages/backend/.cloudbuild'
 timeout: 1800s

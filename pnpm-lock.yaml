@@ -6,15 +6,17 @@ settings:
 
 importers:
 
+  .: {}
+
   packages/backend:
     dependencies:
+      '@symphco/mecha-kucha-common':
+        specifier: workspace:*
+        version: link:../common
       fastify:
         specifier: ^4.25.2
         version: 4.26.2
     devDependencies:
-      '@symphco/mecha-kucha-common':
-        specifier: workspace:*
-        version: link:../common
       '@types/node':
         specifier: ^20.11.0
         version: 20.12.7

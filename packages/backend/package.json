@@ -12,7 +12,6 @@
     "pridepack"
   ],
   "devDependencies": {
-    "@symphco/mecha-kucha-common": "workspace:*",
     "@types/node": "^20.11.0",
     "pridepack": "2.6.0",
     "tslib": "^2.6.2",
@@ -20,11 +19,13 @@
     "vitest": "^1.2.0"
   },
   "dependencies": {
-    "fastify": "^4.25.2"
+    "@symphco/mecha-kucha-common": "workspace:*",
+    "fastify": "4.25.2"
   },
   "scripts": {
     "prepublishOnly": "pridepack clean && pridepack build",
     "build": "pridepack build",
+    "cloudbuild-pack": "node ./cloudbuild-pack",
     "type-check": "pridepack check",
     "clean": "pridepack clean",
     "watch": "pridepack watch",
