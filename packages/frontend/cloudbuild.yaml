@@ -10,7 +10,7 @@ steps:
     args: [ '-c', 'printenv > .env' ]
     env:
       - 'NEXT_PUBLIC_BACKEND_BASE_URL=${_NEXT_PUBLIC_BACKEND_BASE_URL}'
-      - 'PORT=${PORT}'
+      - 'PORT=${_PORT}'
   - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
     args: [ 'build' ]

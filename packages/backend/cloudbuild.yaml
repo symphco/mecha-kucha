@@ -26,7 +26,7 @@ steps:
       - 'GOOGLE_SLIDES_API_BASE_URL=${_GOOGLE_SLIDES_API_BASE_URL}'
       - 'GOOGLE_SLIDES_API_PRESENTATIONS_ENDPOINT=${_GOOGLE_SLIDES_API_PRESENTATIONS_ENDPOINT}'
       - 'FRONTEND_BASE_URL=${_FRONTEND_BASE_URL}'
-      - 'PORT=${PORT}'
+      - 'PORT=${_PORT}'
   - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
     args: [ 'build' ]
