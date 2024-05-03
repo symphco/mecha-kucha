@@ -18,7 +18,7 @@ const ensure = (fn) => async (...args) => {
 };
 
 const getDestPath = (asset) => asset.dest ?? asset.path;
-const getStartScript = (config) => config.packageJson?.scripts?.start ?? config.assets.reduce(
+const getStartScript = (config) => config.start ?? config.packageJson?.scripts?.start ?? config.assets.reduce(
   (start, asset) => {
     if (asset.main) {
       return `node ${getDestPath(asset)}`;
