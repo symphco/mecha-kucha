@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import {AppState, SlotCollection, MAXIMUM_IMAGES, Slide, SLIDE_LAYOUTS, ImageSlotContent} from '@symphco/mecha-kucha-common';
+import {makeSlides} from '@/common';
 
 interface UseInputFormParams {
   refresh?: (...args: unknown[]) => unknown;
@@ -326,73 +327,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     }
   };
 
-  const makeSlides = (input: string, imageGenerator: string): Partial<Slide>[] => {
-    const theSlides: Partial<Slide>[] = input
-      .split('\n')
-      .filter((s) => s.trim().length > 0)
-      .reduce(
-        (previousSlides, line) => {
-          if (line.startsWith('Part ')) {
-            const [, partTitle] = line.split(':');
-            const title = partTitle.trim();
 
-            return [
-              ...previousSlides,
-              {
-                id: window.crypto.randomUUID(),
-                imageGenerator,
-                layout: SLIDE_LAYOUTS[Math.floor(Math.random() * SLIDE_LAYOUTS.length)],
-                visibleSlots: Math.floor(Math.random() * (MAXIMUM_IMAGES + 1)),
-                title,
-                text: '',
-              } as Partial<Slide>
-            ];
-          }
-
-          if (line.startsWith('Theme:')) {
-            const [, query] = line.split(':');
-            const theme = query.trim();
-            const lastSlide = previousSlides.at(-1);
-            if (typeof lastSlide === 'undefined') {
-              return previousSlides;
-            }
-            return [
-              ...previousSlides.slice(0, -1),
-              {
-                ...lastSlide,
-                theme,
-              }
-            ] as Slide[];
-          }
-
-          const lastSlide = previousSlides.at(-1);
-          if (typeof lastSlide === 'undefined') {
-            return previousSlides;
-          }
-          return [
-            ...previousSlides.slice(0, -1),
-            {
-              ...lastSlide,
-              text: `${lastSlide.text}\n\n${line.trim()}`.trim()
-            }
-          ];
-        },
-        [] as Partial<Slide>[]
-      );
-
-    const incompleteSlides = theSlides.filter((slide) => (
-      typeof slide.title === 'undefined'
-      || typeof slide.theme === 'undefined'
-    ));
-
-    if (incompleteSlides.length > 0) {
-      throw new Error('Incomplete slides', {
-        cause: incompleteSlides
-      });
-    }
-
-    return theSlides;
-  };
 
   const getSingleImage = async (slide: Slide, index: number) => {
     const r = await fetch(
@@ -495,6 +430,10 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     }
 
     const input = valuesRaw.get('input') as string ?? '';
+    if (input.trim().length < 1) {
+      window.alert('Enter any input to generate slides!');
+    }
+
     const values = {
       title,
       input,
@@ -505,6 +444,15 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     let theSlides: Partial<Slide>[];
     try {
       theSlides = makeSlides(input, imageGenerator);
+      const incompleteSlides = theSlides.filter((slide) => (
+        typeof slide.title === 'undefined'
+        || typeof slide.theme === 'undefined'
+      ));
+
+      if (incompleteSlides.length > 0) {
+        window.alert('Incomplete slides');
+        return;
+      }
     } catch (errRaw) {
       const err = errRaw as Error;
       // TODO better error handling!

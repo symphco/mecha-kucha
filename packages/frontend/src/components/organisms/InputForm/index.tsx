@@ -1,9 +1,10 @@
-import {FC, HTMLProps} from 'react';
+import {ChangeEventHandler, FC, HTMLProps, useState} from 'react';
 import {AppState} from '@symphco/mecha-kucha-common';
 import {TextInput} from '@/components/molecules/TextInput';
 import {MultilineTextInput} from '@/components/molecules/MultilineTextInput';
 import {ActionButton} from '@/components/molecules/ActionButton';
 import {DropdownInput} from '@/components/molecules/DropdownInput';
+import {makeSlides, validateSlides} from '@/common';
 
 interface InputFormProps extends HTMLProps<HTMLElementTagNameMap['form']> {
   defaultValues: AppState;
@@ -15,6 +16,37 @@ export const InputForm: FC<InputFormProps> = ({
   disabled,
   ...etcProps
 }) => {
+  const [isInspireMeDisabled, setIsInspireMeDisabled] = useState(true);
+
+  const handleAnyInputChange = (form?: HTMLElementTagNameMap['form'] | null) => {
+    if (!form) {
+      return;
+    }
+    const formData = new FormData(form);
+    const values = Object.fromEntries(
+      formData.entries()
+    ) as Record<string, string>;
+
+    const { input, imageGenerator } = values;
+    const slides = makeSlides(input, imageGenerator);
+    try {
+      validateSlides(slides)
+    } catch {
+      setIsInspireMeDisabled(true);
+      return;
+    }
+
+    setIsInspireMeDisabled(values.title.trim().length < 1);
+  };
+
+  const handleTitleChange: ChangeEventHandler<HTMLElementTagNameMap['input']> = (e) => {
+    handleAnyInputChange(e.currentTarget.form);
+  };
+
+  const handleInputChange: ChangeEventHandler<HTMLElementTagNameMap['textarea']> = (e) => {
+    handleAnyInputChange(e.currentTarget.form);
+  };
+
   return (
     <form
       {...etcProps}
@@ -27,18 +59,39 @@ export const InputForm: FC<InputFormProps> = ({
         </legend>
         <div className="flex flex-col gap-8">
           <div>
+            <p>
+              Give a title to your presentation.
+            </p>
             <TextInput
-              label="Title"
+              label="Title (required)"
               name="title"
               defaultValue={defaultValues?.title}
+              required
+              onChange={handleTitleChange}
             />
           </div>
-          <div>
+          <div className="flex flex-col gap-2">
+            <p>
+              Follow the format for your input as follows:
+            </p>
+            <pre className="text-xs relative after:absolute after:top-0 after:left-0 after:w-full after:h-full after:opacity-10 after:bg-current p-4">
+              <code>
+                Part 1: Slide Title<br />
+                Theme: Nature<br />
+                Slide notes for slide 1 here<br />
+                <br />
+                Part 2: Slide Title<br />
+                Theme: Nature<br />
+                Slide notes for slide 2 go here
+              </code>
+            </pre>
             <MultilineTextInput
-              label="Input"
+              label="Input (required)"
               rows={3}
               name="input"
               defaultValue={defaultValues?.input}
+              required
+              onChange={handleInputChange}
             />
           </div>
           <div>
@@ -70,6 +123,7 @@ export const InputForm: FC<InputFormProps> = ({
                   name="submit"
                   value="inspire-me"
                   variant="super"
+                  disabled={isInspireMeDisabled}
                 >
                   Inspire Me!
                 </ActionButton>
@@ -78,6 +132,7 @@ export const InputForm: FC<InputFormProps> = ({
                 <ActionButton
                   type="submit"
                   variant="primary"
+                  disabled={isInspireMeDisabled}
                 >
                   Go!
                 </ActionButton>
