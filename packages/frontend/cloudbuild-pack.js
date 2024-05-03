@@ -127,7 +127,7 @@ void main({
       path: '.next',
     },
     {
-      path: 'next.config.js',
+      path: 'next.config.mjs',
     },
     {
       path: 'public',
