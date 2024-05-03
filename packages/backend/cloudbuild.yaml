@@ -8,6 +8,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     entrypoint: /bin/bash
     args: [ '-c', 'printenv > .env' ]
+    dir: 'packages/backend'
     env:
       - 'GOOGLE_CLOUD_OAUTH2_BASE_URL=${_GOOGLE_CLOUD_OAUTH2_BASE_URL}'
       - 'GOOGLE_CLOUD_OAUTH2_ENDPOINT=${_GOOGLE_CLOUD_OAUTH2_ENDPOINT}'
@@ -29,11 +30,13 @@ steps:
       - 'PORT=${_PORT}'
   - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
-    args: [ 'build' ]
+    args: [ '--filter', '@symphco/mecha-kucha-backend', 'build' ]
+    dir: 'packages/backend'
   - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
-    args: [ 'cloudbuild-pack' ]
+    args: [ '--filter', '@symphco/mecha-kucha-backend', 'cloudbuild-pack' ]
+    dir: 'packages/backend'
   - name: 'gcr.io/cloud-builders/gcloud'
     args: [ 'app', 'deploy', 'app.yaml' ]
-    dir: '.cloudbuild'
+    dir: 'packages/backend/.cloudbuild'
 timeout: 1800s
