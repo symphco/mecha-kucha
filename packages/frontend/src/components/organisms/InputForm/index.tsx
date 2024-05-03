@@ -58,9 +58,9 @@ export const InputForm: FC<InputFormProps> = ({
           Input Form
         </legend>
         <div className="flex flex-col gap-8">
-          <div>
+          <div className="flex flex-col gap-2">
             <p>
-              Give a title to your presentation.
+              Step 1: Give a title to your presentation.
             </p>
             <TextInput
               label="Title (required)"
@@ -72,7 +72,7 @@ export const InputForm: FC<InputFormProps> = ({
           </div>
           <div className="flex flex-col gap-2">
             <p>
-              Follow the format for your input as follows:
+              Step 2: Follow the format for your input as follows:
             </p>
             <pre className="text-xs relative after:absolute after:top-0 after:left-0 after:w-full after:h-full after:opacity-10 after:bg-current p-4">
               <code>
@@ -87,14 +87,18 @@ export const InputForm: FC<InputFormProps> = ({
             </pre>
             <MultilineTextInput
               label="Input (required)"
-              rows={3}
+              rows={5}
               name="input"
               defaultValue={defaultValues?.input}
               required
               onChange={handleInputChange}
+              autoResize
             />
           </div>
-          <div>
+          <div className="flex flex-col gap-2">
+            <p>
+              Step 3: Select the image generator you want to use.
+            </p>
             <DropdownInput
               label="Image Generator"
               name="imageGenerator"

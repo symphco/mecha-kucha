@@ -8,6 +8,7 @@ import {SlideDisplay} from '@/components/molecules/SlideDisplay';
 import {useInputForm} from '@/hooks/useInputForm';
 import {PresentationActionForm} from '@/components/organisms/PresentationActionForm';
 import {useSlideWorkspace} from '@/hooks/useSlideWorkspace';
+import {Brand} from '@/components/molecules/Brand';
 
 const cancelEvent: DragEventHandler<HTMLElement> = (e) => {
   e.preventDefault();
@@ -47,17 +48,7 @@ const IndexPage: NextPage = () => {
       >
         <header className="z-10 fixed top-0 left-0 w-full h-20 px-8 flex gap-8 items-center justify-between">
           <div>
-            <span
-              className="whitespace-nowrap block font-bold leading-none"
-            >
-              <span className="block text-2xl">
-                めちゃくちゃ
-              </span>
-              {' '}
-              <span className="block lowercase">
-                Mecha Kucha
-              </span>
-            </span>
+            <Brand />
           </div>
           <div className={`text-center ${working ? 'pointer-events-none opacity-50' : ''}`.trim()}>
             <Link
@@ -182,6 +173,14 @@ const IndexPage: NextPage = () => {
       >
         <div className="my-16">
           <div className="max-w-screen-md px-8 mx-auto">
+            <div className="mb-8">
+              <div className="mb-4 text-3xl">
+                <Brand />
+              </div>
+              <div className="text-xl font-bold">
+                Create beautiful presentations with AI.
+              </div>
+            </div>
             <InputForm
               key={formKey}
               defaultValues={appState}
