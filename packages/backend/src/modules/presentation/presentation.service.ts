@@ -1,7 +1,6 @@
-import {AppState, getImageLayouts} from '@symphco/mecha-kucha-common';
+import {AppState, getImageLayouts, AVAILABLE_DESTINATIONS} from '@symphco/mecha-kucha-common';
 import {constants} from 'http2';
 import {Presentation} from '../../models';
-import * as config from '../../config';
 import {CreatePresentationError, UnauthorizedError} from './presentation.response';
 
 export interface PresentationService {
@@ -36,8 +35,8 @@ export class PresentationServiceImpl implements PresentationService {
     const authorization = authParams.join(' ');
     const newPresentationResponse = await fetch(
       new URL(
-        config.content.googleSlides.presentationsEndpoint,
-        config.content.googleSlides.baseUrl
+        AVAILABLE_DESTINATIONS['googleSlides'].presentationsEndpoint,
+        AVAILABLE_DESTINATIONS['googleSlides'].baseUrl
       ).toString(),
       {
         method: 'POST',
@@ -76,8 +75,8 @@ export class PresentationServiceImpl implements PresentationService {
     const authorization = authParams.join(' ');
     const updatedPresentation = await fetch(
       new URL(
-        `${config.content.googleSlides.presentationsEndpoint}/${this.presentation.presentationId}:batchUpdate`,
-        config.content.googleSlides.baseUrl,
+        `${AVAILABLE_DESTINATIONS['googleSlides'].presentationsEndpoint}/${this.presentation.presentationId}:batchUpdate`,
+        AVAILABLE_DESTINATIONS['googleSlides'].baseUrl,
       ).toString(),
       {
         method: 'POST',
@@ -261,8 +260,8 @@ export class PresentationServiceImpl implements PresentationService {
 
     const presentationWithImagesResponse = await fetch(
       new URL(
-        `${config.content.googleSlides.presentationsEndpoint}/${newPresentation.presentationId}`,
-        config.content.googleSlides.baseUrl,
+        `${AVAILABLE_DESTINATIONS['googleSlides'].presentationsEndpoint}/${newPresentation.presentationId}`,
+        AVAILABLE_DESTINATIONS['googleSlides'].baseUrl,
       ).toString(),
       {
         method: 'GET',
@@ -296,8 +295,8 @@ export class PresentationServiceImpl implements PresentationService {
     const authorization = authParams.join(' ');
     const presentationWithCaptionResponse = await fetch(
       new URL(
-        `${config.content.googleSlides.presentationsEndpoint}/${presentationWithImages.presentationId}:batchUpdate`,
-        config.content.googleSlides.baseUrl,
+        `${AVAILABLE_DESTINATIONS['googleSlides'].presentationsEndpoint}/${presentationWithImages.presentationId}:batchUpdate`,
+        AVAILABLE_DESTINATIONS['googleSlides'].baseUrl,
       ).toString(),
       {
         method: 'POST',

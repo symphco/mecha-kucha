@@ -24,23 +24,20 @@ export namespace auth {
   }
 }
 
+export namespace image {
+  export namespace sources {
+    export namespace unsplash {
+      export const clientId = process.env.UNSPLASH_API_CLIENT_ID as string;
+      export const clientSecret = process.env.UNSPLASH_API_CLIENT_SECRET as string;
+    }
+  }
+}
+
 export namespace content {
-  export namespace unsplash {
-    export const baseUrl = process.env.UNSPLASH_API_BASE_URL as string;
-    export const endpoint = process.env.UNSPLASH_API_ENDPOINT as string;
-    export const clientId = process.env.UNSPLASH_API_CLIENT_ID as string;
-    export const clientSecret = process.env.UNSPLASH_API_CLIENT_SECRET as string;
-  }
-
-  export namespace airops {
-    export const endpoint = process.env.AIROPS_API_ENDPOINT as string;
-    export const baseUrl = process.env.AIROPS_API_BASE_URL as string;
-    export const accessToken = process.env.AIROPS_API_ACCESS_TOKEN as string;
-    export const accessTokenAuthType = process.env.AIROPS_API_ACCESS_TOKEN_TYPE as string;
-  }
-
-  export namespace googleSlides {
-    export const baseUrl = process.env.GOOGLE_SLIDES_API_BASE_URL as string;
-    export const presentationsEndpoint = process.env.GOOGLE_SLIDES_API_PRESENTATIONS_ENDPOINT as string;
+  export namespace sources {
+    export namespace airops {
+      export const accessToken = process.env.AIROPS_API_ACCESS_TOKEN as string;
+      export const accessTokenAuthType = process.env.AIROPS_API_ACCESS_TOKEN_TYPE as string;
+    }
   }
 }

@@ -2,6 +2,21 @@ steps:
   - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
     args: [ 'install' ]
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: /bin/bash
+    args: [ '-c', 'printenv > .env' ]
+    dir: 'packages/common'
+    env:
+      - 'GOOGLE_CLOUD_OAUTH2_BASE_URL=${_GOOGLE_CLOUD_OAUTH2_BASE_URL}'
+      - 'GOOGLE_CLOUD_OAUTH2_ENDPOINT=${_GOOGLE_CLOUD_OAUTH2_ENDPOINT}'
+      - 'GOOGLE_CLOUD_OAUTH2_TOKEN_BASE_URL=${_GOOGLE_CLOUD_OAUTH2_TOKEN_BASE_URL}'
+      - 'GOOGLE_CLOUD_OAUTH2_TOKEN_ENDPOINT=${_GOOGLE_CLOUD_OAUTH2_TOKEN_ENDPOINT}'
+      - 'UNSPLASH_API_BASE_URL=${_UNSPLASH_API_BASE_URL}'
+      - 'UNSPLASH_API_ENDPOINT=${_UNSPLASH_API_ENDPOINT}'
+      - 'AIROPS_API_BASE_URL=${_AIROPS_API_BASE_URL}'
+      - 'AIROPS_API_ENDPOINT=${_AIROPS_API_ENDPOINT}'
+      - 'GOOGLE_SLIDES_API_BASE_URL=${_GOOGLE_SLIDES_API_BASE_URL}'
+      - 'GOOGLE_SLIDES_API_PRESENTATIONS_ENDPOINT=${_GOOGLE_SLIDES_API_PRESENTATIONS_ENDPOINT}'
   - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
     args: [ '--filter', '@symphco/mecha-kucha-common', 'build' ]

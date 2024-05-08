@@ -1,4 +1,10 @@
-import {ImageSlotContent, MAXIMUM_IMAGES, Slide} from '@symphco/mecha-kucha-common';
+import {
+  ImageSlotContent,
+  MAXIMUM_IMAGES,
+  Slide,
+  AVAILABLE_IMAGE_SOURCES,
+  ImageSourceKey,
+} from '@symphco/mecha-kucha-common';
 import * as config from '../../config';
 
 export interface ImageService {
@@ -7,21 +13,30 @@ export interface ImageService {
 }
 
 export class ImageServiceImpl implements ImageService {
-  constructor(private readonly source: string) {
+  constructor(private readonly source: ImageSourceKey) {
     // noop
   }
 
   async generateSingleImage(slide: Slide, index: number) {
     switch (this.source) {
+      case 'picsum': {
+        const now = Date.now();
+        return {
+          type: 'image',
+          url: `https://picsum.photos/seed/${slide.id}-${index}-${now}/200`,
+        } as ImageSlotContent;
+      }
       case 'unsplash': {
-        const url = new URL(
-          config.content[this.source].endpoint,
-          config.content[this.source].baseUrl
-        );
+        const { baseUrl, endpoint } = AVAILABLE_IMAGE_SOURCES[this.source];
+        if (typeof baseUrl !== 'string' || typeof endpoint !== 'string') {
+          throw new Error('Endpoint not specified');
+        }
+
+        const url = new URL(endpoint, baseUrl);
         url.search = new URLSearchParams({
           page: '1', // TODO get next pages!
           query: slide.theme as string,
-          client_id: config.content[this.source].clientId,
+          client_id: config.image.sources[this.source].clientId,
         }).toString();
         const response = await fetch(url);
         if (!response.ok) {
@@ -45,24 +60,45 @@ export class ImageServiceImpl implements ImageService {
         break;
     }
 
-    const now = Date.now();
-    return {
-      type: 'image',
-      url: `https://picsum.photos/seed/${slide.id}-${index}-${now}/200`,
-    } as ImageSlotContent;
+    throw new Error(`Unknown image source: ${this.source}.`);
   }
 
   async generateSlideImages(slide: Partial<Slide>): Promise<ImageSlotContent[]> {
     switch (this.source) {
+      case 'picsum': {
+        const now = Date.now();
+        const theObtainedUrls = [
+          `https://picsum.photos/seed/${slide.id}-0-${now}/200`,
+          `https://picsum.photos/seed/${slide.id}-1-${now}/200`,
+          `https://picsum.photos/seed/${slide.id}-2-${now}/200`,
+          `https://picsum.photos/seed/${slide.id}-3-${now}/200`,
+          `https://picsum.photos/seed/${slide.id}-4-${now}/200`,
+        ];
+        return (
+          Array.isArray(slide.slots)
+            ? [
+              ...(theObtainedUrls.slice(0, slide.visibleSlots ?? MAXIMUM_IMAGES).map((s) => ({
+                type: 'image',
+                url: s,
+              }))),
+              slide.slots.slice(slide.visibleSlots ?? MAXIMUM_IMAGES)
+            ]
+            : theObtainedUrls.map((s) => ({
+              type: 'image',
+              url: s,
+            }))
+        ) as ImageSlotContent[];
+      }
       case 'unsplash': {
-        const url = new URL(
-          config.content[this.source].endpoint,
-          config.content[this.source].baseUrl
-        );
+        const { baseUrl, endpoint } = AVAILABLE_IMAGE_SOURCES[this.source];
+        if (typeof baseUrl !== 'string' || typeof endpoint !== 'string') {
+          throw new Error('Endpoint not specified');
+        }
+        const url = new URL(endpoint, baseUrl);
         url.search = new URLSearchParams({
           page: '1', // TODO get next pages!
           query: slide.theme as string,
-          client_id: config.content[this.source].clientId,
+          client_id: config.image.sources[this.source].clientId,
         }).toString();
         const response = await fetch(url);
         if (!response.ok) {
@@ -89,27 +125,6 @@ export class ImageServiceImpl implements ImageService {
         break;
     }
 
-    const now = Date.now();
-    const theObtainedUrls = [
-      `https://picsum.photos/seed/${slide.id}-0-${now}/200`,
-      `https://picsum.photos/seed/${slide.id}-1-${now}/200`,
-      `https://picsum.photos/seed/${slide.id}-2-${now}/200`,
-      `https://picsum.photos/seed/${slide.id}-3-${now}/200`,
-      `https://picsum.photos/seed/${slide.id}-4-${now}/200`,
-    ];
-    return (
-      Array.isArray(slide.slots)
-        ? [
-          ...(theObtainedUrls.slice(0, slide.visibleSlots ?? MAXIMUM_IMAGES).map((s) => ({
-            type: 'image',
-            url: s,
-          }))),
-          slide.slots.slice(slide.visibleSlots ?? MAXIMUM_IMAGES)
-        ]
-        : theObtainedUrls.map((s) => ({
-          type: 'image',
-          url: s,
-        }))
-    ) as ImageSlotContent[];
+    throw new Error(`Unknown image source: ${this.source}.`);
   }
 }

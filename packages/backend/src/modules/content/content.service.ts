@@ -1,3 +1,7 @@
+import {
+  AVAILABLE_CAPTION_SOURCES,
+  CaptionSourceKey,
+} from '@symphco/mecha-kucha-common';
 import * as config from '../../config';
 
 export interface ContentService {
@@ -5,7 +9,7 @@ export interface ContentService {
 }
 
 export class ContentServiceImpl implements ContentService {
-  constructor(private readonly source: string) {
+  constructor(private readonly source: CaptionSourceKey) {
     // noop
   }
 
@@ -17,15 +21,18 @@ export class ContentServiceImpl implements ContentService {
     switch (this.source) {
       case 'airops': {
         const url = new URL(
-          config.content[this.source].endpoint,
-          config.content[this.source].baseUrl,
+          AVAILABLE_CAPTION_SOURCES[this.source].endpoint,
+          AVAILABLE_CAPTION_SOURCES[this.source].baseUrl,
         );
 
         const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
-            'Authorization': `${config.content[this.source].accessTokenAuthType} ${config.content[this.source].accessToken}`,
+            'Authorization': [
+              config.content.sources[this.source].accessTokenAuthType,
+              config.content.sources[this.source].accessToken
+            ].join(' '),
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
@@ -45,6 +52,6 @@ export class ContentServiceImpl implements ContentService {
         break;
     }
 
-    throw new Error('Unknown source.');
+    throw new Error(`Unknown caption source: ${this.source}.`);
   }
 }

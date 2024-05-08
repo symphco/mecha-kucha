@@ -1,5 +1,10 @@
 import {ChangeEventHandler, FC, HTMLProps, useState} from 'react';
-import {AppState} from '@symphco/mecha-kucha-common';
+import {
+  AppState,
+  AVAILABLE_IMAGE_SOURCES,
+  AVAILABLE_CAPTION_SOURCES,
+  AVAILABLE_DESTINATIONS,
+} from '@symphco/mecha-kucha-common';
 import {TextInput} from '@/components/molecules/TextInput';
 import {MultilineTextInput} from '@/components/molecules/MultilineTextInput';
 import {ActionButton} from '@/components/molecules/ActionButton';
@@ -99,20 +104,60 @@ export const InputForm: FC<InputFormProps> = ({
           </div>
           <div className="flex flex-col gap-2">
             <p>
-              Step 3: Select the image generator you want to use.
+              Step 3: Select the parameters you want to use.
             </p>
-            <DropdownInput
-              label="Image Generator"
-              name="imageGenerator"
-              defaultValue={defaultValues?.imageGenerator}
-            >
-              <option value="picsum">
-                Picsum
-              </option>
-              <option value="unsplash">
-                Unsplash
-              </option>
-            </DropdownInput>
+            <div className="contents sm:flex gap-2">
+              <DropdownInput
+                label="Image Generator"
+                name="imageGenerator"
+                className="w-full"
+                defaultValue={defaultValues?.imageGenerator}
+              >
+                {Object
+                  .entries(AVAILABLE_IMAGE_SOURCES)
+                  .sort(([, sourceA], [, sourceB]) => sourceA.name.localeCompare(sourceB.name))
+                  .map(([key, source]) => (
+                    <option value={key} key={key}>
+                      {source.name}
+                    </option>
+                  ))
+                }
+              </DropdownInput>
+              <DropdownInput
+                label="Caption Generator"
+                name="captionGenerator"
+                className="w-full"
+                defaultValue={defaultValues?.captionGenerator}
+              >
+                {
+                  Object
+                    .entries(AVAILABLE_CAPTION_SOURCES)
+                    .sort(([, sourceA], [, sourceB]) => sourceA.name.localeCompare(sourceB.name))
+                    .map(([key, source]) => (
+                      <option value={key} key={key}>
+                        {source.name}
+                      </option>
+                    ))
+                }
+              </DropdownInput>
+              <DropdownInput
+                label="Destination"
+                name="destination"
+                className="w-full"
+                defaultValue={defaultValues?.destination}
+              >
+                {
+                  Object
+                    .entries(AVAILABLE_DESTINATIONS)
+                    .sort(([, sourceA], [, sourceB]) => sourceA.name.localeCompare(sourceB.name))
+                    .map(([key, destination]) => (
+                      <option value={key} key={key}>
+                        {destination.name}
+                      </option>
+                    ))
+                }
+              </DropdownInput>
+            </div>
           </div>
           <div className="flex justify-between items-center gap-8">
             <div>

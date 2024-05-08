@@ -23,7 +23,7 @@ export const DropdownInput: React.FC<DropdownInputProps> = ({
   const effectiveId = id ?? defaultId;
 
   return (
-    <div className="bg-black h-12 relative rounded overflow-hidden has-[:disabled]:opacity-50">
+    <div className={`bg-black h-12 relative rounded overflow-hidden has-[:disabled]:opacity-50 ${className}`}>
       <label className="contents">
         <span className="absolute top-0 left-0 px-2 pt-1 w-full text-xs font-bold">
           {label}
@@ -34,7 +34,7 @@ export const DropdownInput: React.FC<DropdownInputProps> = ({
         <DropdownInputDerivedElementComponent
           {...etcProps}
           id={effectiveId}
-          className={`bg-black h-full w-full block px-2 pt-2 ${className}`}
+          className={"bg-black h-full w-full block px-2 pt-2"}
         >
           {children}
         </DropdownInputDerivedElementComponent>
