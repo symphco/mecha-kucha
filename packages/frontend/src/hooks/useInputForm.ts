@@ -14,7 +14,7 @@ import {
   ImageSlotContent,
   ImageSourceKey, CaptionSourceKey,
 } from '@symphco/mecha-kucha-common';
-import {makeSlides} from '@/common';
+import {makeSlides, validateSlides} from '@/common';
 
 interface UseInputFormParams {
   refresh?: (...args: unknown[]) => unknown;
@@ -35,6 +35,8 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
   });
 
   const [inputFormWorking, setInputFormWorking] = useState(false);
+  const [isGoButtonDisabled, setIsGoButtonDisabled] = useState(true);
+  const [isInspireMeButtonDisabled, setIsInspireMeButtonDisabled] = useState(true);
 
   const handlePresentationActionFormSubmit: FormEventHandler<HTMLElementTagNameMap['form']> = async (e) => {
     e.preventDefault();
@@ -199,6 +201,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
             captionGenerator,
           })) : oldAppState.slides,
         }));
+
       } else {
         window.alert(responseBody.message);
       }
@@ -399,7 +402,31 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
           break;
       }
     }
-  }
+  };
+
+  const handleValidate = (form: HTMLElementTagNameMap['form'] | null) => {
+    if (!form) {
+      return;
+    }
+
+    const formData = new FormData(form);
+    const values = Object.fromEntries(
+      formData.entries()
+    ) as Record<string, string>;
+    const { title, input, imageGenerator } = values;
+    const slides = makeSlides(input, imageGenerator);
+
+    try {
+      validateSlides(slides)
+    } catch {
+      setIsInspireMeButtonDisabled(title.trim().length < 1);
+      setIsGoButtonDisabled(true);
+      return;
+    }
+
+    setIsInspireMeButtonDisabled(title.trim().length < 1);
+    setIsGoButtonDisabled(title.trim().length < 1);
+  };
 
   useEffect(() => {
     if (
@@ -441,5 +468,8 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     appState,
     formKey,
     working,
+    isGoButtonDisabled,
+    isInspireMeButtonDisabled,
+    handleValidate,
   };
 };

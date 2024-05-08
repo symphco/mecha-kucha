@@ -31,7 +31,10 @@ export const MultilineTextInput: React.FC<MultilineTextInputProps> = ({
   const handleChange: ChangeEventHandler<MultilineTextInputDerivedElement> = (e) => {
     const {value} = e.currentTarget;
     if (autoResize) {
-      e.currentTarget.rows = Math.max(defaultRows, value.split('\n').length);
+      const numberOfRows = value.split('\n').length;
+      const rows = Math.max(defaultRows, numberOfRows);
+      e.currentTarget.rows = rows;
+      e.currentTarget.style.height = `${(rows + 1) * 24}px`;
     }
     onChange?.(e);
   };
@@ -54,7 +57,9 @@ export const MultilineTextInput: React.FC<MultilineTextInputProps> = ({
           id={effectiveId}
           className={`bg-black h-full w-full block px-2 min-h-12 pt-4 ${className} ${autoResize && isClient ? 'resize-none' : 'resize-y'}`}
           onChange={handleChange}
-          rows={defaultRows}
+          style={{
+            height: (defaultRows + 1) * 24,
+          }}
         />
       </label>
     </div>

@@ -9,50 +9,32 @@ import {TextInput} from '@/components/molecules/TextInput';
 import {MultilineTextInput} from '@/components/molecules/MultilineTextInput';
 import {ActionButton} from '@/components/molecules/ActionButton';
 import {DropdownInput} from '@/components/molecules/DropdownInput';
-import {makeSlides, validateSlides} from '@/common';
 
 interface InputFormProps extends HTMLProps<HTMLElementTagNameMap['form']> {
   defaultValues: AppState;
+  isInspireMeButtonDisabled?: boolean;
+  isGoButtonDisabled?: boolean;
+  handleAnyInputChange?: (form: HTMLElementTagNameMap['form'] | null) => void;
+  hasCancel?: boolean;
 }
 
 export const InputForm: FC<InputFormProps> = ({
   onSubmit,
   defaultValues,
   disabled,
+  isInspireMeButtonDisabled = true,
+  isGoButtonDisabled = true,
+  handleAnyInputChange,
+  hasCancel = true,
   ...etcProps
 }) => {
-  const [isGoButtonDisabled, setIsGoButtonDisabled] = useState(true);
-  const [isInspireMeButtonDisabled, setIsInspireMeButtonDisabled] = useState(true);
-
-  const handleAnyInputChange = (form?: HTMLElementTagNameMap['form'] | null) => {
-    if (!form) {
-      return;
-    }
-    const formData = new FormData(form);
-    const values = Object.fromEntries(
-      formData.entries()
-    ) as Record<string, string>;
-
-    const { title, input, imageGenerator } = values;
-    const slides = makeSlides(input, imageGenerator);
-    try {
-      validateSlides(slides)
-    } catch {
-      setIsInspireMeButtonDisabled(title.trim().length < 1);
-      setIsGoButtonDisabled(true);
-      return;
-    }
-
-    setIsInspireMeButtonDisabled(title.trim().length < 1);
-    setIsGoButtonDisabled(title.trim().length < 1);
-  };
 
   const handleTitleChange: ChangeEventHandler<HTMLElementTagNameMap['input']> = (e) => {
-    handleAnyInputChange(e.currentTarget.form);
+    handleAnyInputChange?.(e.currentTarget.form);
   };
 
   const handleInputChange: ChangeEventHandler<HTMLElementTagNameMap['textarea']> = (e) => {
-    handleAnyInputChange(e.currentTarget.form);
+    handleAnyInputChange?.(e.currentTarget.form);
   };
 
   return (
@@ -95,6 +77,9 @@ export const InputForm: FC<InputFormProps> = ({
                 ...
               </code>
             </pre>
+            <p>
+              Note: you might need to change the input yourself after generation.
+            </p>
             <MultilineTextInput
               label="Input (required)"
               rows={5}
@@ -107,7 +92,7 @@ export const InputForm: FC<InputFormProps> = ({
           </div>
           <div className="flex flex-col gap-2">
             <p>
-              Step 3: Select the parameters you want to use.
+              Step 3: Select the parameters you want to apply.
             </p>
             <div className="contents sm:flex gap-2">
               <DropdownInput
@@ -164,11 +149,13 @@ export const InputForm: FC<InputFormProps> = ({
           </div>
           <div className="flex justify-between items-center gap-8">
             <div>
-              <ActionButton
-                type="reset"
-              >
-                Cancel
-              </ActionButton>
+              {hasCancel && (
+                <ActionButton
+                  type="reset"
+                >
+                  Cancel
+                </ActionButton>
+              )}
             </div>
             <div className="flex justify-end gap-8">
               <div>
@@ -180,7 +167,7 @@ export const InputForm: FC<InputFormProps> = ({
                   disabled={isInspireMeButtonDisabled}
                   formNoValidate
                 >
-                  Inspire Me!
+                  {disabled ? 'Inspiring...' : 'Inspire Me!'}
                 </ActionButton>
               </div>
               <div>
@@ -189,7 +176,7 @@ export const InputForm: FC<InputFormProps> = ({
                   variant="primary"
                   disabled={isGoButtonDisabled}
                 >
-                  Go!
+                  {disabled ? 'Please wait...' : 'Go!'}
                 </ActionButton>
               </div>
             </div>

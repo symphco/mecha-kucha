@@ -9,6 +9,7 @@ import {useInputForm} from '@/hooks/useInputForm';
 import {PresentationActionForm} from '@/components/organisms/PresentationActionForm';
 import {useSlideWorkspace} from '@/hooks/useSlideWorkspace';
 import {Brand} from '@/components/molecules/Brand';
+import {makeSlides, validateSlides} from '@/common';
 
 const cancelEvent: DragEventHandler<HTMLElement> = (e) => {
   e.preventDefault();
@@ -33,6 +34,9 @@ const IndexPage: NextPage = () => {
     formKey,
     slideImageLoading,
     working,
+    handleValidate,
+    isInspireMeButtonDisabled,
+    isGoButtonDisabled,
   } = useInputForm({ refresh });
 
   const currentSlide = appState.slides?.find((s) => s.id === router.query.slide);
@@ -166,7 +170,7 @@ const IndexPage: NextPage = () => {
       </main>
       <dialog
         open={showInputFormModal}
-        className="fixed top-0 left-0 w-full h-full bg-black text-white z-10"
+        className="fixed top-0 left-0 w-full h-full bg-black text-white z-10 overflow-auto"
         onDragEnter={cancelEvent}
         onDragOver={cancelEvent}
         onDrop={handleWindowDrop}
@@ -187,6 +191,10 @@ const IndexPage: NextPage = () => {
               onSubmit={handleInputFormSubmit}
               onReset={handleInputFormReset}
               disabled={inputFormWorking || typeof working !== 'undefined'}
+              handleAnyInputChange={handleValidate}
+              isInspireMeButtonDisabled={isInspireMeButtonDisabled}
+              isGoButtonDisabled={isGoButtonDisabled}
+              hasCancel={(appState.slides?.length ?? 0) > 0}
             />
           </div>
         </div>
