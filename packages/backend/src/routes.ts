@@ -3,6 +3,7 @@ import {PresentationController, PresentationControllerImpl, PresentationServiceI
 import {AuthController, AuthControllerImpl, AuthServiceImpl} from './modules/auth';
 import {ImageController, ImageControllerImpl, ImageServiceImpl} from './modules/image';
 import {ContentController, ContentControllerImpl, ContentServiceImpl} from './modules/content';
+import {CaptionSourceKey, ImageSourceKey} from '@symphco/mecha-kucha-common';
 
 export const addAuthRoutes = (server: FastifyInstance) => {
   const authController: AuthController = new AuthControllerImpl();
@@ -39,7 +40,7 @@ export const addImagesRoutes = (server: FastifyInstance) => {
         return;
       }
 
-      const { source } = request.params as { source: string };
+      const { source } = request.params as { source: ImageSourceKey };
       request.imageService = new ImageServiceImpl(source);
     })
     .route({
@@ -64,7 +65,7 @@ export const addContentsRoutes = (server: FastifyInstance) => {
         return;
       }
 
-      const { source } = request.params as { source: string };
+      const { source } = request.params as { source: CaptionSourceKey };
       request.contentService = new ContentServiceImpl(source);
     })
     .route({

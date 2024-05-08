@@ -21,7 +21,8 @@ export const InputForm: FC<InputFormProps> = ({
   disabled,
   ...etcProps
 }) => {
-  const [isInspireMeDisabled, setIsInspireMeDisabled] = useState(true);
+  const [isGoButtonDisabled, setIsGoButtonDisabled] = useState(true);
+  const [isInspireMeButtonDisabled, setIsInspireMeButtonDisabled] = useState(true);
 
   const handleAnyInputChange = (form?: HTMLElementTagNameMap['form'] | null) => {
     if (!form) {
@@ -32,16 +33,18 @@ export const InputForm: FC<InputFormProps> = ({
       formData.entries()
     ) as Record<string, string>;
 
-    const { input, imageGenerator } = values;
+    const { title, input, imageGenerator } = values;
     const slides = makeSlides(input, imageGenerator);
     try {
       validateSlides(slides)
     } catch {
-      setIsInspireMeDisabled(true);
+      setIsInspireMeButtonDisabled(title.trim().length < 1);
+      setIsGoButtonDisabled(true);
       return;
     }
 
-    setIsInspireMeDisabled(values.title.trim().length < 1);
+    setIsInspireMeButtonDisabled(title.trim().length < 1);
+    setIsGoButtonDisabled(title.trim().length < 1);
   };
 
   const handleTitleChange: ChangeEventHandler<HTMLElementTagNameMap['input']> = (e) => {
@@ -174,7 +177,8 @@ export const InputForm: FC<InputFormProps> = ({
                   name="submit"
                   value="inspire-me"
                   variant="super"
-                  disabled={isInspireMeDisabled}
+                  disabled={isInspireMeButtonDisabled}
+                  formNoValidate
                 >
                   Inspire Me!
                 </ActionButton>
@@ -183,7 +187,7 @@ export const InputForm: FC<InputFormProps> = ({
                 <ActionButton
                   type="submit"
                   variant="primary"
-                  disabled={isInspireMeDisabled}
+                  disabled={isGoButtonDisabled}
                 >
                   Go!
                 </ActionButton>
