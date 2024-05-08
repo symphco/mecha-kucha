@@ -28,6 +28,7 @@ steps:
       - 'NEXT_PUBLIC_BACKEND_BASE_URL=${_NEXT_PUBLIC_BACKEND_BASE_URL}'
       - 'PORT=${_PORT}'
       - 'HOST=${_HOST}'
+      - 'BASE_URL=${_BASE_URL}'
   - name: guergeiro/pnpm:current-8
     entrypoint: pnpm
     args: [ '--filter', '@symphco/mecha-kucha-frontend', 'build' ]
