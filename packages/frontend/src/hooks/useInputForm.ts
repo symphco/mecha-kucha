@@ -33,6 +33,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
   const [working, setWorking] = useState<string>();
   const [formKey, setFormKey] = useState<number>();
   const [slideImageLoading, setSlideImageLoading] = useState([] as number[]);
+  const [loaded, setLoaded] = useState(false);
   const [appState, setAppState] = useState<AppState>({
     title: undefined,
     input: undefined,
@@ -462,6 +463,10 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
         appStateStr = JSON.parse(state) as AppState;
         setAppState(appStateStr);
         const firstSlideId = appStateStr.slides?.[0].id;
+        if (loaded) {
+          return;
+        }
+        setLoaded(true);
         if (firstSlideId) {
           void router?.replace({
             query: {
@@ -477,6 +482,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
           },
         })
       } catch {
+        setLoaded(true);
         void router?.replace({
           query: {
             input: 'true',
