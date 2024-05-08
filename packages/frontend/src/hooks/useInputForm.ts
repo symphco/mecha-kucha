@@ -1,4 +1,4 @@
-import {useRouter} from 'next/router';
+import {NextRouter} from 'next/router';
 import {
   ChangeEventHandler,
   DragEventHandler,
@@ -18,10 +18,18 @@ import {makeSlides, validateSlides} from '@/common';
 
 interface UseInputFormParams {
   refresh?: (...args: unknown[]) => unknown;
+  router?: NextRouter;
+  storage?: Storage;
+  storageKey?: string;
 }
 
 export const useInputForm = (params = {} as UseInputFormParams) => {
-  const router = useRouter();
+  const {
+    router,
+    storage,
+    refresh,
+    storageKey,
+  } = params;
   const [working, setWorking] = useState<string>();
   const [formKey, setFormKey] = useState<number>();
   const [slideImageLoading, setSlideImageLoading] = useState([] as number[]);
@@ -90,11 +98,12 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
         );
 
         if (response.status === 401) {
-          window.localStorage.setItem('mechakucha-last-state', appStateStr);
           setWorking(undefined);
-          await router.push({
-            pathname: '/api/auth/providers/google',
-          });
+          if (router) {
+            await router.push({
+              pathname: '/api/auth/providers/google',
+            });
+          }
           return;
         }
 
@@ -159,10 +168,12 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
 
   const handleInputFormReset: FormEventHandler<HTMLElementTagNameMap['form']> = async (e) => {
     e.preventDefault();
-    const { input: _, ...etcQuery } = router.query;
-    await router.replace({
-      query: etcQuery
-    });
+    if (router) {
+      const { input: _, ...etcQuery } = router.query;
+      await router.replace({
+        query: etcQuery
+      });
+    }
   };
 
   const handleInputFormSubmit: FormEventHandler<HTMLElementTagNameMap['form']> = async (e) => {
@@ -190,18 +201,26 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
       const responseBody = await response.json();
       if (response.ok) {
         setFormKey(Date.now());
-        setAppState((oldAppState) => ({
-          ...oldAppState,
-          title,
-          imageGenerator,
-          input: responseBody,
-          slides: Array.isArray(oldAppState.slides) ? oldAppState.slides.map((s) => ({
-            ...s,
+        setAppState((oldAppState) => {
+          const newState = {
+            ...oldAppState,
+            title,
             imageGenerator,
-            captionGenerator,
-          })) : oldAppState.slides,
-        }));
+            input: responseBody,
+            slides: Array.isArray(oldAppState.slides) ? oldAppState.slides.map((s) => ({
+              ...s,
+              imageGenerator,
+              captionGenerator,
+            })) : oldAppState.slides,
+          };
 
+          if (typeof storageKey !== 'undefined') {
+            storage?.setItem(storageKey, JSON.stringify(newState));
+          }
+          return newState;
+        });
+
+        setIsGoButtonDisabled(false);
       } else {
         window.alert(responseBody.message);
       }
@@ -247,13 +266,15 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
       slides: resultSlides,
     }));
 
-    const { input: _, ...etcQuery } = router.query;
-    await router.replace({
-      query: {
-        ...etcQuery,
-        slide: resultSlides[0].id,
-      }
-    });
+    if (router) {
+      const {input: _, ...etcQuery} = router.query;
+      await router.replace({
+        query: {
+          ...etcQuery,
+          slide: resultSlides[0].id,
+        }
+      });
+    }
     setInputFormWorking(false);
   };
 
@@ -262,7 +283,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
     | HTMLElementTagNameMap['select']
     | HTMLElementTagNameMap['textarea']
   > = (e) => {
-    if (typeof router.query.slide !== 'string') {
+    if (typeof router?.query.slide !== 'string') {
       return;
     }
     const slideId = router.query.slide;
@@ -302,14 +323,16 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
         const result = (e.currentTarget as FileReader).result as string;
         const newAppState = JSON.parse(result);
         setAppState(newAppState);
-        const { input: _, ...etcQuery } = router.query;
-        await router.replace({
-          query: {
-            ...etcQuery,
-            slide: newAppState.slides[0].id,
-          }
-        });
-        params?.refresh?.();
+        if (router) {
+          const {input: _, ...etcQuery} = router.query;
+          await router.replace({
+            query: {
+              ...etcQuery,
+              slide: newAppState.slides[0].id,
+            }
+          });
+        }
+        refresh?.();
         resolve();
       });
 
@@ -356,7 +379,7 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
 
   const handleCurrentSlideImageRegenerate: FormEventHandler<HTMLElementTagNameMap['form']> = async (e) => {
     e.preventDefault();
-    const currentSlide = appState.slides?.find((s) => s.id === router.query.slide);
+    const currentSlide = appState.slides?.find((s) => s.id === router?.query.slide);
     if (typeof currentSlide === 'undefined') {
       return;
     }
@@ -429,30 +452,39 @@ export const useInputForm = (params = {} as UseInputFormParams) => {
   };
 
   useEffect(() => {
-    if (
-      (typeof appState.title === 'undefined' || typeof appState.input === 'undefined')
-    ) {
-      const lastStateStr = window.localStorage.getItem('mechakucha-last-state');
-      let lastState = null;
-      try {
-        if (lastStateStr !== null) {
-          lastState = JSON.parse(lastStateStr);
-        }
-      } catch {
-        lastState = null;
-      }
-      if (lastState === null || typeof router.query.input !== 'string') {
-        void router.replace({
-          query: {
-            input: 'true'
-          }
-        });
-        return;
-      }
-      setAppState(lastState as AppState);
-      window.localStorage.removeItem('mechakucha-last-state');
+    if (typeof storageKey !== 'string') {
+      return;
     }
-  }, []);
+    const state = storage?.getItem(storageKey);
+    if (state) {
+      let appStateStr: AppState;
+      try {
+        appStateStr = JSON.parse(state) as AppState;
+        setAppState(appStateStr);
+        const firstSlideId = appStateStr.slides?.[0].id;
+        if (firstSlideId) {
+          void router?.replace({
+            query: {
+              ...(router?.query ?? {}),
+              slide: firstSlideId,
+            },
+          })
+          return;
+        }
+        void router?.replace({
+          query: {
+            input: 'true',
+          },
+        })
+      } catch {
+        void router?.replace({
+          query: {
+            input: 'true',
+          },
+        })
+      }
+    }
+  }, [storage, router, storageKey]);
 
   return {
     handlePresentationActionFormSubmit,

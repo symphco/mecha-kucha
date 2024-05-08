@@ -9,7 +9,6 @@ import {useInputForm} from '@/hooks/useInputForm';
 import {PresentationActionForm} from '@/components/organisms/PresentationActionForm';
 import {useSlideWorkspace} from '@/hooks/useSlideWorkspace';
 import {Brand} from '@/components/molecules/Brand';
-import {makeSlides, validateSlides} from '@/common';
 
 const cancelEvent: DragEventHandler<HTMLElement> = (e) => {
   e.preventDefault();
@@ -37,7 +36,12 @@ const IndexPage: NextPage = () => {
     handleValidate,
     isInspireMeButtonDisabled,
     isGoButtonDisabled,
-  } = useInputForm({ refresh });
+  } = useInputForm({
+    refresh,
+    router,
+    storage: typeof window === 'undefined' ? undefined : window?.localStorage,
+    storageKey: 'mechakucha-last-state',
+  });
 
   const currentSlide = appState.slides?.find((s) => s.id === router.query.slide);
   const showInputFormModal = typeof router.query.input === 'string';
